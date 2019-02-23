@@ -19,7 +19,35 @@ namespace BotDiscord.Modules
             _commandService = commandService;
         }
 
-        [Command("!aroll"), Summary("Lance un Dé 100 avec jet ouvert")]
+        [Command("!")]
+        public async Task MultipleRoll(string exrp)
+        {
+            var values = exrp.Split('d', '+');
+            int.TryParse(values[0], out int number);
+            int.TryParse(values[1], out int size);
+            int bonus = 0;
+            if (values.Count() >2)
+            {
+                int.TryParse(values[2], out bonus); 
+            }
+
+            List<int> results = new List<int>();
+
+            for (int i = 0; i < number; i++)
+            {
+                results.Add(GenericTools.SimpleRoll(size).Total);
+            }
+            string msg = Context.User.Mention + $" ({exrp}) : " + string.Join(" + ", results);
+            if (values.Count() > 2)
+            {
+                msg += " + " + bonus;
+            }
+            msg += " = " + (results.Sum() + bonus);
+            await Context.Message.DeleteAsync();
+            await Context.Channel.SendMessageAsync(msg);
+        }
+
+        [Command("!ar"), Summary("Lance un Dé 100 avec jet ouvert")]
         public async Task AnimaRoll([Summary("Bonus à ajouter")]int num = 0, [Summary("Decription du lancé")]string desc = "")
         {
             await Context.Message.DeleteAsync();
@@ -30,11 +58,19 @@ namespace BotDiscord.Modules
                 );
         }
 
-        [Command("!roll"), Summary("Lance un Dé")]
+        [Command("!r"), Summary("Lance un Dé")]
         public async Task Roll([Summary("Taille du Dé")]int dieSize, [Summary("Bonus à ajouter")]int bonus = 0)
         {
             await Context.Message.DeleteAsync();
             await Context.Channel.SendMessageAsync(Context.User.Mention + " rolled : " + GenericTools.SimpleRoll(dieSize, bonus).ResultText);
+        }
+
+        [Command("!me"), Summary("Pour t'aider dans ton RP parce qu'un autre joueur parle trop")]
+        public async Task Me(params string[] s)
+        {
+            string text = string.Join(" ", s);
+            await Context.Message.DeleteAsync();
+            await Context.Channel.SendMessageAsync($"***{Context.User.Mention} {text}***");
         }
 
         [Command("!purge"), Summary("Purge un Channel (Admin uniquement)")]
@@ -54,7 +90,7 @@ namespace BotDiscord.Modules
         public async Task Help()
         {
             await Context.Message.DeleteAsync();
-            string helpLine = "`";
+            string helpLine = "```";
             foreach (var module in _commandService.Modules)
             {
                 string moduleName = module.Name;
@@ -69,7 +105,7 @@ namespace BotDiscord.Modules
                     helpLine += "\n";
                 }
             }
-            helpLine += "`";
+            helpLine += "```";
             await Context.Channel.SendMessageAsync(helpLine);
         }
     }

@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="StatAliases.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="StatAliases.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Discord.Net" Version="1.0.2" />
     <PackageReference Include="EPPlus.Core" Version="1.5.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="1.1.2" />

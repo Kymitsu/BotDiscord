@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.IO;
+using BotDiscord.RPG;
 
 namespace BotDiscord
 {
@@ -16,10 +17,12 @@ namespace BotDiscord
 
         private DiscordSocketClient _client;
         private IConfiguration _config;
-        private const string _token = "MjQ5MjI2NzQxMzk3MTkyNzA0.DKLSog.-IwwSv6e06thBP554zRhRt0vxlQ";
+        //private const string _token = "MjQ5MjI2NzQxMzk3MTkyNzA0.DKLSog.-IwwSv6e06thBP554zRhRt0vxlQ";
 
         public async Task MainAsync()
         {
+            AnimaCharacterRepository.LoadFromCurrentDirectory();
+
             _client = new DiscordSocketClient();
             _client.Log += Log;
 

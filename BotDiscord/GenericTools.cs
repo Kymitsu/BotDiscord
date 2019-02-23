@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http;
 using OfficeOpenXml;
 using BotDiscord.RPG;
+using System.Linq;
 
 namespace BotDiscord
 {
@@ -16,7 +17,7 @@ namespace BotDiscord
 
         public static DiceResult SimpleRoll(int dieSize, int bonus = 0)
         {
-            return new DiceResult(new List<int> { random.Next(1, dieSize) }, bonus);
+            return new DiceResult(new List<int> { random.Next(1, dieSize+1) }, bonus);
         }
 
         public static DiceResult AnimaRoll(int bonus = 0)
@@ -28,7 +29,7 @@ namespace BotDiscord
         {
 
             openRollValue = openRollValue > 100 ? 100 : openRollValue;
-            int temp = random.Next(1, 100);
+            int temp = random.Next(1, 100+1);
             diceResults.Add(temp);
             if (temp >= openRollValue)
             {
@@ -40,26 +41,51 @@ namespace BotDiscord
             }
         }
 
-        public async static void HandleFile(IAttachment attachment)
+        public async static void HandleFile(IAttachment attachment, string mention)
         {
             if (Path.GetExtension(attachment.Filename) != ".xlsx") return;
 
             using (HttpClient hclient = new HttpClient())
             {
-                Stream stream = await hclient.GetStreamAsync(attachment.Url);
+                Stream stream;
+                try
+                {
+                    stream = await hclient.GetStreamAsync(attachment.Url);
+                }
+                catch (Exception)
+                {
+                    try
+                    {
+                        stream = await hclient.GetStreamAsync(attachment.ProxyUrl);
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
+                }
                 MemoryStream memoryStream = new MemoryStream();
                 stream.CopyTo(memoryStream);
                 using (ExcelPackage package = new ExcelPackage(memoryStream))
                 {
                     ExcelWorkbook workbook = package.Workbook;
                     ExcelWorksheet worksheet = workbook.Worksheets["Feuille de personnage"];
-                    AnimaCharacter animaCharacter = new AnimaCharacter(worksheet);
-                    AnimaCharacterRepository.animaCharacters.Add(animaCharacter);
-                    AnimaCharacterRepository.SaveCharacters();
+                    AnimaCharacter animaCharacter = new AnimaCharacter(worksheet, mention);
+
+                    int charIndex = AnimaCharacterRepository.animaCharacters.FindIndex(x => x.Player == mention && x.Name == animaCharacter.Name);
+
+                    if (charIndex == -1)
+                    {
+                        AnimaCharacterRepository.animaCharacters.Add(animaCharacter); 
+                    }
+                    else
+                    {
+                        AnimaCharacterRepository.animaCharacters[charIndex] = animaCharacter;
+                    }
+
+                    AnimaCharacterRepository.SaveExcelCharacter(package, mention, animaCharacter.Name);
                 }
             }
         }
-
     }
 
     public class DiceResult

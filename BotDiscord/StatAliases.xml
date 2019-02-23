@@ -1,0 +1,404 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Alisases>
+  <Stat value="Agilité">
+    <Alias value="agilite"/>
+    <Alias value="aglite"/>
+    <Alias value="agylité"/>
+    <Alias value="agilyté"/>
+  </Stat>
+  <Stat value="Constitution">
+    <Alias value="Constitoin"/>
+    <Alias value="consitution"/>
+  </Stat>
+  <Stat value="Dextérité">
+    <Alias value="Dexterité"/>
+    <Alias value="Dextérite"/>
+    <Alias value="Dexterite"/>
+  </Stat>
+  <Stat value="Force">
+    <Alias value="forse"/>
+    <Alias value="forc"/>
+    <Alias value="focre"/>
+  </Stat>
+  <Stat value="Intelligence">
+    <Alias value="inteligence"/>
+    <Alias value="intelligance"/>
+    <Alias value="inteligance"/>
+  </Stat>
+  <Stat value="Perception">
+  </Stat>
+  <Stat value="Pouvoir">
+  </Stat>
+  <Stat value="Volonté">
+    <Alias value="Volonte"/>
+  </Stat>
+  <Stat value="Initiative">
+    <Alias value="intiative"/>
+  </Stat>
+  <Stat value="Attaque">
+    <Alias value="ataque"/>
+    <Alias value="attack"/>
+  </Stat>
+  <Stat value="Parade">
+  </Stat>
+  <Stat value="Esquive">
+  </Stat>
+  <Stat value="Projection magique">
+    <Alias value="projection magic"/>
+  </Stat>
+  <Stat value="Convoquer">
+    <Alias value="convoqué"/>
+    <Alias value="convoque"/>
+  </Stat>
+  <Stat value="Dominer">
+    <Alias value="dominé"/>
+    <Alias value="domine"/>
+  </Stat>
+  <Stat value="Lier">
+    <Alias value="lié"/>
+  </Stat>
+  <Stat value="Révoquer">
+    <Alias value="Revoquer"/>
+    <Alias value="révoqué"/>
+    <Alias value="revoqué"/>
+    <Alias value="révoque"/>
+    <Alias value="revoque"/>
+  </Stat>
+  <Stat value="Projection psychique">
+    <Alias value="projection psy"/>
+  </Stat>
+  <Stat value="Talent Psy">
+    <Alias value="talen psy"/>
+  </Stat>
+  <Stat value="Acrobaties">
+    <Alias value="acrobatie"/>
+  </Stat>
+  <Stat value="Athlétisme">
+    <Alias value="athletisme"/>
+  </Stat>
+  <Stat value="Equitation">
+    <Alias value="équitation"/>
+  </Stat>
+  <Stat value="Escalade">
+  </Stat>
+  <Stat value="Natation">
+  </Stat>
+  <Stat value="Saut ">
+  </Stat>
+  <Stat value="Impassibilité">
+    <Alias value="impassibilite"/>
+    <Alias value="impasibilité"/>
+    <Alias value="impasibilite"/>
+    <Alias value="impssibilité"/>
+    <Alias value="impssibilite"/>
+    <Alias value="impsibilité"/>
+    <Alias value="impsibilite"/>
+  </Stat>
+  <Stat value="Prouesse de force">
+    <Alias value="Prouesse de forse"/>
+    <Alias value="Prouesse de forc"/>
+    <Alias value="Prouese de force"/>
+    <Alias value="Prouese de forse"/>
+    <Alias value="Prouese de forc"/>
+  </Stat>
+  <Stat value="Résistance à la douleur">
+    <Alias value="resistance à la douleur"/>
+    <Alias value="résistance a la douleur"/>
+    <Alias value="resistance a la douleur"/>
+    <Alias value="resistence a la douleur"/>
+    <Alias value="résisatance à la douleur"/>
+    <Alias value="resisatance à la douleur"/>
+    <Alias value="résisatance a la douleur"/>
+    <Alias value="resisatance a la douleur"/>
+    <Alias value="resisatence a la douleur"/>
+    <Alias value="resistance douleur"/>
+    <Alias value="résistance douleur"/>
+    <Alias value="résistence douleur"/>
+    <Alias value="resistence douleur"/>
+    <Alias value="resisatance douleur"/>
+    <Alias value="résisatance douleur"/>
+    <Alias value="résisatence douleur"/>
+    <Alias value="resisatence douleur"/>
+  </Stat>
+  <Stat value="Observation">
+    <Alias value="obsevation"/>
+    <Alias value="observcation"/>
+  </Stat>
+  <Stat value="Pistage">
+  </Stat>
+  <Stat value="Vigilance">
+    <Alias value="vigilence"/>
+    <Alias value="vigilenc"/>
+  </Stat>
+  <Stat value="Camouflage">
+  </Stat>
+  <Stat value="Crochetage">
+  </Stat>
+  <Stat value="Déguisement">
+    <Alias value="deguisement"/>
+    <Alias value="deguisemen"/>
+    <Alias value="Déguisemant"/>
+    <Alias value="deguisemant"/>
+    <Alias value="deguiseman"/>
+  </Stat>
+  <Stat value="Discrétion">
+    <Alias value="discretion"/>
+  </Stat>
+  <Stat value="Larcin">
+    <Alias value="larsin"/>
+  </Stat>
+  <Stat value="Pièges">
+    <Alias value="pieges"/>
+    <Alias value="piège"/>
+    <Alias value="piege"/>
+  </Stat>
+  <Stat value="Poisons">
+    <Alias value="poison"/>
+    <Alias value="pioson"/>
+    <Alias value="piosons"/>
+  </Stat>
+  <Stat value="Commandement">
+    <Alias value="commendement"/>
+    <Alias value="commandemant"/>
+    <Alias value="commendemant"/>
+    <Alias value="comandement"/>
+    <Alias value="comendement"/>
+    <Alias value="comandemant"/>
+    <Alias value="comendemant"/>
+  </Stat>
+  <Stat value="Intimidation">
+  </Stat>
+  <Stat value="Persuasion">
+    <Alias value="persausion"/>
+  </Stat>
+  <Stat value="Style">
+  </Stat>
+  <Stat value="Commerce">
+    <Alias value="comerce"/>
+  </Stat>
+  <Stat value="Commerce (spécialisation)">
+    <Alias value="Commerce (specialisation)"/>
+    <Alias value="Commerce spécialisation"/>
+    <Alias value="Commerce spé"/>
+    <Alias value="Commerce spe"/>
+    <Alias value="Comerce (specialisation)"/>
+    <Alias value="Comerce spécialisation"/>
+    <Alias value="Comerce spé"/>
+    <Alias value="Comerce spe"/>
+  </Stat>
+  <Stat value="Connaissance de la rue">
+    <Alias value="Connaisance de la rue"/>
+    <Alias value="Connaissence de la rue"/>
+    <Alias value="Connaisence de la rue"/>
+    <Alias value="Conaissance de la rue"/>
+    <Alias value="Conaisance de la rue"/>
+    <Alias value="Conaissence de la rue"/>
+    <Alias value="Conaisence de la rue"/>
+  </Stat>
+  <Stat value="Étiquette ">
+    <Alias value="etiquette"/>
+    <Alias value="étiquete"/>
+    <Alias value="etiquete"/>
+  </Stat>
+  <Stat value="Art">
+  </Stat>
+  <Stat value="Art (spécialisation)">
+    <Alias value="Art (specialisation)"/>
+    <Alias value="Art spécialisation"/>
+    <Alias value="Art spé"/>
+    <Alias value="Art spe"/>
+  </Stat>
+  <Stat value="Danse">
+    <Alias value="dance"/>
+    <Alias value="dence"/>
+    <Alias value="dense"/>
+  </Stat>
+  <Stat value="Danse (spécialisation)">
+    <Alias value="Danse (specialisation)"/>
+    <Alias value="Danse spécialisation"/>
+    <Alias value="Danse spé"/>
+    <Alias value="Danse spe"/>
+    <Alias value="dance (specialisation)"/>
+    <Alias value="dance spécialisation"/>
+    <Alias value="dance spé"/>
+    <Alias value="dance spe"/>
+    <Alias value="dence (specialisation)"/>
+    <Alias value="dence spécialisation"/>
+    <Alias value="dence spé"/>
+    <Alias value="dence spe"/>
+    <Alias value="dense (specialisation)"/>
+    <Alias value="dense spécialisation"/>
+    <Alias value="dense spé"/>
+    <Alias value="dense spe"/>
+  </Stat>
+  <Stat value="Forge">
+  </Stat>
+  <Stat value="Forge (spécialisation)">
+    <Alias value="Forge (specialisation)"/>
+    <Alias value="Forge spécialisation"/>
+    <Alias value="Forge spé"/>
+    <Alias value="Forge spe"/>
+  </Stat>
+  <Stat value="Habileté manuelle">
+    <Alias value="habilite manuelle"/>
+    <Alias value="habilité manuelle"/>
+    <Alias value="habillité manuelle"/>
+    <Alias value="habillite manuelle"/>
+    <Alias value="habilité man"/>
+    <Alias value="habilite man"/>
+    <Alias value="habilete manuelle"/>
+    <Alias value="habilleté manuelle"/>
+    <Alias value="habillete manuelle"/>
+    <Alias value="habileté man"/>
+    <Alias value="habilete man"/>
+  </Stat>
+  <Stat value="Habileté man.(spécialisation)">
+    <Alias value="Habileté man.(specialisation)"/>
+    <Alias value="Habileté man.spécialisation"/>
+    <Alias value="Habileté man.spé"/>
+    <Alias value="Habileté man.spe"/>
+    <Alias value="Habilete man.(specialisation)"/>
+    <Alias value="Habilete man.spécialisation"/>
+    <Alias value="Habilete man.spé"/>
+    <Alias value="Habilete man.spe"/>
+    <Alias value="Habilete man (specialisation)"/>
+    <Alias value="Habilete man spécialisation"/>
+    <Alias value="Habilete man spé"/>
+    <Alias value="Habilete man spe"/>
+    <Alias value="Habileté manuelle.(specialisation)"/>
+    <Alias value="Habileté manuelle.spécialisation"/>
+    <Alias value="Habileté manuelle.spé"/>
+    <Alias value="Habileté manuelle.spe"/>
+    <Alias value="Habilete manuelle.(specialisation)"/>
+    <Alias value="Habilete manuellespécialisation"/>
+    <Alias value="Habilete manuelle.spé"/>
+    <Alias value="Habilete manuelle.spe"/>
+    <Alias value="Habilete manuelle (specialisation)"/>
+    <Alias value="Habilete manuelle spécialisation"/>
+    <Alias value="Habilete manuelle spé"/>
+    <Alias value="Habilete manuelle spe"/>
+  </Stat>
+  <Stat value="Musique">
+    <Alias value="music"/>
+  </Stat>
+  <Stat value="Musique (spécialisation)">
+    <Alias value="Musique (specialisation)"/>
+    <Alias value="Musique spécialisation"/>
+    <Alias value="Musique spé"/>
+    <Alias value="Musique spe"/>
+    <Alias value="music spe"/>
+    <Alias value="music spé"/>
+  </Stat>
+  <Stat value="Animaux">
+    <Alias value="animau"/>
+    <Alias value="animal"/>
+  </Stat>
+  <Stat value="Animaux (spécialisation)">
+    <Alias value="Animaux (specialisation)"/>
+    <Alias value="Animaux spécialisation"/>
+    <Alias value="Animaux spé"/>
+    <Alias value="Animaux spe"/>
+    <Alias value="Animau (specialisation)"/>
+    <Alias value="Animau spécialisation"/>
+    <Alias value="Animau spé"/>
+    <Alias value="Animau spe"/>
+    <Alias value="Animal (specialisation)"/>
+    <Alias value="Animal spécialisation"/>
+    <Alias value="Animal spé"/>
+    <Alias value="Animal spe"/>
+    <Alias value="Animal (specialisation)"/>
+    <Alias value="Animal spécialisation"/>
+    <Alias value="Animal spé"/>
+    <Alias value="Animal spe"/>
+  </Stat>
+  <Stat value="Estimation">
+  </Stat>
+  <Stat value="Evaluation magique">
+    <Alias value="évaluation magique"/>
+    <Alias value="estimation magique"/>
+  </Stat>
+  <Stat value="Herboristerie">
+    <Alias value="herboristeri"/>
+  </Stat>
+  <Stat value="Histoire">
+  </Stat>
+  <Stat value="Histoire (locale)">
+    <Alias value="histoire locale"/>
+    <Alias value="histoire local"/>
+  </Stat>
+  <Stat value="Histoire (chrétienne)">
+    <Alias value="histoire (chretienne)"/>
+    <Alias value="histoire chrétienne"/>
+    <Alias value="histoire chretienne"/>
+  </Stat>
+  <Stat value="Médecine">
+    <Alias value="medecine"/>
+  </Stat>
+  <Stat value="Médecine (anatomie)">
+    <Alias value="medecine (anatomie)"/>
+    <Alias value="médecine anatomie"/>
+    <Alias value="medecine anatomie"/>
+    <Alias value="medecine (anatomi)"/>
+    <Alias value="médecine anatomi"/>
+    <Alias value="medecine anatomi"/>
+  </Stat>
+  <Stat value="Mémorisation">
+    <Alias value="memorisation"/>
+    <Alias value="ùéùorisation"/>
+    <Alias value="mémoire"/>
+    <Alias value="memoire"/>
+  </Stat>
+  <Stat value="Navigation">
+    <Alias value="naviagation"/>
+  </Stat>
+  <Stat value="Occultisme">
+    <Alias value="ocultisme"/>
+  </Stat>
+  <Stat value="Occultisme (religion)">
+    <Alias value="occultisme religion"/>
+    <Alias value="ocultisme (religion)"/>
+    <Alias value="ocultisme religion"/>
+  </Stat>
+  <Stat value="Occultisme (mythes locaux)">
+    <Alias value="occultisme mythes locaux"/>
+    <Alias value="ocultisme (mythes locaux)"/>
+    <Alias value="ocultisme mythes locaux"/>
+    <Alias value="occultisme mythe locaux"/>
+    <Alias value="ocultisme (mythe locaux)"/>
+    <Alias value="ocultisme mythe locaux"/>
+    <Alias value="occultisme mythes locau"/>
+    <Alias value="ocultisme (mythes locau)"/>
+    <Alias value="ocultisme mythes locau"/>
+    <Alias value="occultisme mythe locau"/>
+    <Alias value="ocultisme (mythe locau)"/>
+    <Alias value="ocultisme mythe locau"/>
+  </Stat>
+  <Stat value="Science">
+  </Stat>
+  <Stat value="Science (spécialisation)">
+    <Alias value="Science (specialisation)"/>
+    <Alias value="Science spécialisation"/>
+    <Alias value="Science spé"/>
+    <Alias value="Science spe"/>
+  </Stat>
+  <Stat value="Loi">
+    <Alias value="l'oie"/>
+  </Stat>
+  <Stat value="Tactique">
+  </Stat>
+  <Stat value="Rphy">
+    <Alias value="résistance physique"/>
+  </Stat>
+  <Stat value="Rmal">
+    <Alias value="résistance aux maladies"/>
+  </Stat>
+  <Stat value="Rpoi">
+    <Alias value="résistance aux poisons"/>
+  </Stat>
+  <Stat value="Rmys">
+    <Alias value="résistance mystique"/>
+  </Stat>
+  <Stat value="Rpsy ">
+    <Alias value="résistance psychique"/>
+  </Stat>
+</Alisases> 
