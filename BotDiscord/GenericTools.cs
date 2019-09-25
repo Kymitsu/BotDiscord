@@ -20,6 +20,17 @@ namespace BotDiscord
             return new DiceResult(new List<int> { random.Next(1, dieSize+1) }, bonus);
         }
 
+        public static int CaractRoll(int rerollVal)
+        {
+            int result = random.Next(1, 11);
+            if(result <= rerollVal)
+            {
+                return CaractRoll(rerollVal);
+            }
+
+            return result;
+        }
+
         public static DiceResult AnimaRoll(int bonus = 0)
         {
             return AnimaRoll(bonus, new List<int>(), 90);

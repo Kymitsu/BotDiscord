@@ -20,7 +20,7 @@ namespace BotDiscord.Modules
             await Context.Channel.SendMessageAsync("upload, load, info, r");
         }
 
-        [Command("list")]
+        [Command("list"), Summary("Admin uniquement")]
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task List()
         {
@@ -53,6 +53,23 @@ namespace BotDiscord.Modules
             }
         }
 
+        [Command("new"), Summary("Lance les dés pour un nouveau perso. Caractéristique la plus basse n'est pas modifiée.")]
+        public async Task New([Summary("Relance pour les valeurs inférieures ou égales")]int rerollVal = 0)
+        {
+            string msg = $"{Context.Message.Author.Mention}\n```Caractéristiques : ";
+            List<int> caract = new List<int>();
+            for (int i = 0; i < 8; i++)
+            {
+                caract.Add(GenericTools.CaractRoll(rerollVal));
+            }
+            caract.Sort();
+            msg += string.Join(" | ", caract);
+            msg += $"\nApparence : {GenericTools.CaractRoll(0)}";
+            msg += "```";
+            await Context.Message.DeleteAsync();
+            await Context.Channel.SendMessageAsync(msg);
+        }
+
         [Command("load"), Summary("Charge le personnage à jouer")]
         public async Task Load(params string[] s)
         {
@@ -75,10 +92,11 @@ namespace BotDiscord.Modules
                 AnimaCharacter character = null;
                 try
                 {
+                    AnimaCharacterRepository.animaCharacters.Where(x => x.Player == Context.Message.Author.Mention).ToList().ForEach(x => x.IsCurrent = false);
                     character = AnimaCharacterRepository.animaCharacters.First(x => x.Name == name);
                     character.IsCurrent = true;
                     
-                    await (Context.Message.Author as IGuildUser).ModifyAsync(x => x.Nickname = character.Name);
+                    //await (Context.Message.Author as IGuildUser).ModifyAsync(x => x.Nickname = character.Name);
                 }
                 catch (InvalidOperationException ex)
                 {
