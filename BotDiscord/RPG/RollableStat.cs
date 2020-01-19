@@ -46,6 +46,7 @@ namespace BotDiscord.RPG
         }
 
         public abstract DiceResult Roll();
+        public abstract DiceResult FailRoll(int score);
 
         public override string ToString()
         {

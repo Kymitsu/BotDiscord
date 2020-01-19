@@ -14,7 +14,14 @@ namespace BotDiscord
     public static class GenericTools
     {
         private static Random random = new Random();
-
+        public static int CheckFailValue(Boolean luck,Boolean unluck,int bonus)
+        {
+            int failValue = 3;
+            if (luck == true) failValue -= 1;
+            if (unluck == true) failValue += 2;
+            if (bonus >= 200) failValue -= 1;
+            return failValue;
+        }
         public static DiceResult SimpleRoll(int dieSize, int bonus = 0)
         {
             return new DiceResult(new List<int> { random.Next(1, dieSize+1) }, bonus);
@@ -48,10 +55,90 @@ namespace BotDiscord
         {
             return AnimaRoll(bonus, new List<int>(), 90);
         }
+        public static DiceResult AnimaRoll(string group,int bonus = 0)
+        {
+            if (group == "Résistance")
+            {
+                return SimpleRoll(100, bonus);
+            }
+            else
+            {
+                return AnimaRoll(bonus);
+            }
+        }
+        public static DiceResult FaillRoll(string group,string name,int bonus,int score)
+        {
+            List<int> temp= new List<int> { };
+            switch (group )
+            {
+                case "Caractéristique":
+                    // faill and succes already handled in roll10stat
+                    return null;
+                case "Résistance":
+                // no faill  on resistance
+                    return null;
+                case "Champs principal":
+                    // we have to make 3 possibility, initiative atack and the other main champ
+                    switch (name)
+                    {
+                        case "Initiative":
+                            temp.Add(bonus);
+                            switch (score)
+                            {
+                                case 1:
+                                    return new DiceResult (temp,-125);
+                                case 2:
+                                    return new DiceResult(temp, -100);
+                                default:
+                                    return new DiceResult(temp, -75);
+                            }
+                        case "Attaque":
+                            switch (score)
+                            {
+                                case 1:
+                                    temp.Add(random.Next(1, 101));
+                                    return new DiceResult(temp, +15);
+                                case 2:
+                                    temp.Add(random.Next(1, 101));
+                                    return new DiceResult(temp, 0);
+                                default:
+                                    temp.Add(random.Next(1, 101));
+                                    return new DiceResult(temp, -15);
+                            }
+                        default:
+                            temp.Add(bonus);
+                            switch (score)
+                            {
+                                case 1:
+                                    temp.Add(-(random.Next(1, 101)));
+                                    return new DiceResult(temp, -15);
+                                case 2:
+                                    temp.Add(-(random.Next(1, 101)));
+                                    return new DiceResult(temp, 0);
+                                default:
+                                    temp.Add(-(random.Next(1, 101)));
+                                    return new DiceResult(temp, +15);
+                            }
+                    }
+                default:
+                    // all secondary stat are done the same way
+                    switch (score)
+                    {
+                        case 1:
+                            temp.Add(random.Next(1, 101));
+                            return new DiceResult(temp, +15);
+                        case 2:
+                            temp.Add(random.Next(1, 101));
+                            return new DiceResult(temp, 0);
+                        default:
+                            temp.Add(random.Next(1, 101));
+                            return new DiceResult(temp, -15);
+                    }
 
+            }
+        }
         private static DiceResult AnimaRoll(int bonus, List<int> diceResults, int openRollValue)
         {
-
             openRollValue = openRollValue > 100 ? 100 : openRollValue;
             int temp = random.Next(1, 100+1);
             diceResults.Add(temp);
@@ -60,6 +147,9 @@ namespace BotDiscord
                 return AnimaRoll(bonus, diceResults, openRollValue + 1);
             }
             else
+            {
+
+            }
             {
                 return new DiceResult(diceResults, bonus);
             }

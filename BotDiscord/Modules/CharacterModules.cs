@@ -184,10 +184,26 @@ namespace BotDiscord.Modules
                     return;
                 }
                 await Context.Message.DeleteAsync();
+                DiceResult tempDice = rollableStat.Roll();
                 await Context.Channel.SendMessageAsync(string.Format("{0} rolled : {1}{2}", 
                     Context.User.Mention, 
-                    rollableStat.Roll().ResultText, 
+                    tempDice.ResultText, 
                     (!string.IsNullOrEmpty(rollableStat.Name) ? " (" + rollableStat.Name + ")" : "")));
+                // test si le jet et une maladress
+                int failValue = GenericTools.CheckFailValue(character.Luck, character.Unluck, rollableStat.Value);
+                if (tempDice.DiceResults.Last() <= failValue)
+                {
+                    // si oui lance le jet de maladress
+;                   int tempFail = tempDice.DiceResults.Last();
+                    tempDice = rollableStat.FailRoll(tempFail);
+                    // et affiche le resultat de maladress
+                    await Context.Channel.SendMessageAsync(String.Format("{0} maladress : {1}{2}",
+                    Context.User.Mention,
+                    tempDice.ResultText,
+                    (!string.IsNullOrEmpty(rollableStat.Name) ? " (" + rollableStat.Name + ")" : "")));
+                }
+                
+                
             }
         }
 

@@ -14,5 +14,10 @@ namespace BotDiscord.RPG
         {
             return GenericTools.BaseStatRoll(Value);
         }
+        public override DiceResult FailRoll(int score)
+        {
+            return GenericTools.FaillRoll(Group, Name, Value, score);
+
+        }
     }
 }

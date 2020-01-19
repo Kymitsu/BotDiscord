@@ -12,7 +12,12 @@ namespace BotDiscord.RPG
 
         public override DiceResult Roll()
         {
-            return GenericTools.AnimaRoll(Value);
+            return GenericTools.AnimaRoll(Group,Value);
+        }
+        public override DiceResult FailRoll(int score)
+        {
+            return GenericTools.FaillRoll(Group, Name, Value, score);
+
         }
     }
 }
