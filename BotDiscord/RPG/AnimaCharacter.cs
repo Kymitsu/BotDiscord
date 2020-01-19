@@ -98,8 +98,7 @@ namespace BotDiscord.RPG
             _battleStats.Add(new Roll100Stat(StatGroups[2], excelWorksheet.Cells["B52"].Text, Convert.ToInt32(excelWorksheet.Cells["AC52"].Value)));
             _battleStats.Add(new Roll100Stat(StatGroups[2], excelWorksheet.Cells["B53"].Text, Convert.ToInt32(excelWorksheet.Cells["AC53"].Value)));
             _battleStats.Add(new Roll100Stat(StatGroups[2], excelWorksheet.Cells["B54"].Text, Convert.ToInt32(excelWorksheet.Cells["AC54"].Value)));
-            Roll100Stat defence = _battleStats.Where(x => x.Name == "Esquive" || x.Name == "Parade").OrderByDescending(x => x.Value).First();
-            _battleStats.Add(new Roll100Stat(StatGroups[2], $"Défense : {defence.Name}", defence.Value));
+            
             foreach (var cell in excelWorksheet.Cells[64, 2, 68, 2])
             {
                 _battleStats.Add(new Roll100Stat(StatGroups[2], cell.Text, Convert.ToInt32(cell.Offset(0, 27).Value)));
@@ -123,8 +122,6 @@ namespace BotDiscord.RPG
                     _secondaryStats.Add(new Roll100Stat(StatGroups[3], cell.Text, Convert.ToInt32(cell.Offset(0, 27).Value)));
                 }
             }
-            _secondaryStats.Add(new Roll100Stat(StatGroups[3], excelWorksheet.Cells["G34"].Text, Convert.ToInt32(excelWorksheet.Cells["N34"].Value)));
-            _secondaryStats.Add(new Roll100Stat(StatGroups[3], excelWorksheet.Cells["G35"].Text, Convert.ToInt32(excelWorksheet.Cells["N35"].Value)));
             _secondaryStats.RemoveAll(x => string.IsNullOrWhiteSpace(x.Name));
 
             _allRollableStats.AddRange(_baseStats);

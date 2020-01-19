@@ -19,20 +19,7 @@ namespace BotDiscord
         {
             return new DiceResult(new List<int> { random.Next(1, dieSize+1) }, bonus);
         }
-        public static DiceResult BaseStatRoll(int bonus = 0)
-        {
-            int result = random.Next(1, 11);
-            switch (result)
-            {
-                case 1:
-                    result = -2;
-                    break;
-                case 10:
-                    result = 13;
-                    break;
-            }
-            return new DiceResult(new List<int> { result }, bonus);
-        }
+
         public static int CaractRoll(int rerollVal)
         {
             int result = random.Next(1, 11);
@@ -109,7 +96,6 @@ namespace BotDiscord
                     AnimaCharacterRepository.SaveExcelCharacter(package, mention, animaCharacter.Name);
                 }
             }
-
         }
     }
 
