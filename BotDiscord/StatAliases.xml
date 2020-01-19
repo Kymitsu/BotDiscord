@@ -43,6 +43,26 @@
   </Stat>
   <Stat value="Esquive">
   </Stat>
+  <Stat value="Défense : Parade">
+    <Alias value="Défense"/>
+    <Alias value="Defense"/>
+    <Alias value="Défence"/>
+    <Alias value="Defence"/>
+    <Alias value="Défanse"/>
+    <Alias value="Defanse"/>
+    <Alias value="Défance"/>
+    <Alias value="Defance"/>
+  </Stat>
+  <Stat value="Défense : Esquive">
+    <Alias value="Défense"/>
+    <Alias value="Defense"/>
+    <Alias value="Défence"/>
+    <Alias value="Defence"/>
+    <Alias value="Défanse"/>
+    <Alias value="Defanse"/>
+    <Alias value="Défance"/>
+    <Alias value="Defance"/>
+  </Stat>
   <Stat value="Projection magique">
     <Alias value="projection magic"/>
   </Stat>
