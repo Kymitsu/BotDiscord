@@ -10,7 +10,7 @@ namespace BotDiscord.RPG
         {
         }
 
-        public override DiceResult Roll(int temporaryBonus)
+        public override DiceResult Roll(int temporaryBonus,Boolean destinFuneste)
         {
             return GenericTools.BaseStatRoll(Value + temporaryBonus);
         }
