@@ -6,8 +6,6 @@ using System.Net;
 using Discord;
 using Discord.Audio;
 using System.Net.Http;
-//using YoutubeExplode;
-//using YoutubeExplode.Models.MediaStreams;
 using Discord.Audio.Streams;
 using System.Threading;
 using System;
@@ -20,8 +18,16 @@ namespace BotDiscord.Services
     {
         private readonly ConcurrentDictionary<ulong, IAudioClient> ConnectedChannels = new ConcurrentDictionary<ulong, IAudioClient>();
         private CancellationTokenSource cancellationToken = new CancellationTokenSource();
+        private PauseTokenSource pauseToken = new PauseTokenSource();
+        private bool skipAudio = false;
+
+        public Queue<string> Playlist { get; set; } = new Queue<string>();
 
         public double Volume { get; set; } = 0.5;
+        public bool IsMute { get; set; } = false;
+        public bool IsBotPlaying { get; set; } = false;
+        public bool IsBotPaused { get { return pauseToken.IsPaused; } }
+        public string CurrentAudio { get; private set; }
 
         public async Task JoinAudio(IGuild guild, IVoiceChannel target)
         {
@@ -53,68 +59,107 @@ namespace BotDiscord.Services
             }
         }
 
-        public async Task SendAudioAsync(IGuild guild, IMessageChannel channel, string path)
+        public async Task AddToPlaylist(string path)
         {
-            path = $"{Directory.GetCurrentDirectory()}\\Sounds\\{path}";
-            // Your task: Get a full path to the file if the value of 'path' is only a filename.
-            if (!File.Exists(path))
-            {
-                await channel.SendMessageAsync("File does not exist.");
-                return;
-            }
+            Playlist.Enqueue(path);
+        }
+
+        public async Task SendAudioAsync(IGuild guild, IMessageChannel channel, string file)
+        {
+            //string path = $"{Directory.GetCurrentDirectory()}\\Sounds\\{file}";
+            Playlist.Enqueue(file);
+            
             IAudioClient client;
             if (ConnectedChannels.TryGetValue(guild.Id, out client))
             {
-                //await Log(LogSeverity.Debug, $"Starting playback of {path} in {guild.Name}");
-                using (var ffmpeg = CreateProcess(path))
-                using (AudioOutStream stream = client.CreatePCMStream(AudioApplication.Music))
+                IsBotPlaying = true;
+                while (Playlist.Count > 0 && !cancellationToken.IsCancellationRequested)
                 {
-                    try 
+                    CurrentAudio = Playlist.Dequeue();
+                    string path = $"{Directory.GetCurrentDirectory()}\\Sounds\\{CurrentAudio}";
+                    // Your task: Get a full path to the file if the value of 'path' is only a filename.
+                    if (!File.Exists(path))
                     {
-                        //await ffmpeg.StandardOutput.BaseStream.CopyToAsync(stream, 81920, cancellationToken.Token);
+                        await channel.SendMessageAsync("File does not exist.");
+                        return;
+                    }
 
-                        int blockSize = 3840; // The size of bytes to read per frame; 1920 for mono
-                        byte[] buffer = new byte[blockSize];
-                        byte[] gainBuffer = new byte[blockSize];
-                        int byteCount;
-
-                        while (!cancellationToken.IsCancellationRequested)
+                    //await Log(LogSeverity.Debug, $"Starting playback of {path} in {guild.Name}");
+                    using (var ffmpeg = CreateProcess(path))
+                    using (AudioOutStream stream = client.CreatePCMStream(AudioApplication.Music))
+                    {
+                        try
                         {
-                            byteCount = ffmpeg.StandardOutput.BaseStream.Read(buffer, 0, blockSize); 
+                            //await ffmpeg.StandardOutput.BaseStream.CopyToAsync(stream, 81920, cancellationToken.Token);
+                            
+                            int blockSize = 3840; // The size of bytes to read per frame; 1920 for mono
+                            byte[] buffer = new byte[blockSize];
+                            byte[] gainBuffer = new byte[blockSize];
+                            int byteCount;
 
-                            if (byteCount == 0) // FFmpeg did not output anything
-                                break;
-
-                            for (int i = 0; i < blockSize / 2; ++i)
+                            while (!cancellationToken.IsCancellationRequested)
                             {
+                                if (pauseToken.IsPaused) await pauseToken.WaitWhilePausedAsync();
+                                if (skipAudio)
+                                {
+                                    skipAudio = false;
+                                    break;
+                                }
 
-                                // convert to 16-bit
-                                short sample = (short)((buffer[i * 2 + 1] << 8) | buffer[i * 2]);
+                                byteCount = ffmpeg.StandardOutput.BaseStream.Read(buffer, 0, blockSize);
 
-                                // scale
-                                sample = (short)(sample * Volume + 0.5);
+                                if (byteCount == 0) // FFmpeg did not output anything
+                                    break;
 
-                                // back to byte[]
-                                buffer[i * 2 + 1] = (byte)(sample >> 8);
-                                buffer[i * 2] = (byte)(sample & 0xff);
+                                for (int i = 0; i < blockSize / 2; ++i)
+                                {
+
+                                    // convert to 16-bit
+                                    short sample = (short)((buffer[i * 2 + 1] << 8) | buffer[i * 2]);
+
+                                    // scale
+                                    if (!IsMute)
+                                    {
+                                        sample = (short)(sample * Volume + 0.5);
+                                    }
+                                    else
+                                    {
+                                        sample = (short)(sample * 0 + 0.5);
+                                    }
+
+                                    // back to byte[]
+                                    buffer[i * 2 + 1] = (byte)(sample >> 8);
+                                    buffer[i * 2] = (byte)(sample & 0xff);
+                                }
+
+                                await stream.WriteAsync(buffer, 0, byteCount);
                             }
 
-                            await stream.WriteAsync(buffer, 0, byteCount);
                         }
-
-                    }
-                    finally 
-                    { 
-                        await stream.FlushAsync();
-                        cancellationToken = new CancellationTokenSource();
-                    }
+                        finally
+                        {
+                            await stream.FlushAsync();
+                        }
+                    } 
                 }
+                IsBotPlaying = false;
+                cancellationToken = new CancellationTokenSource();
             }
         }
 
         public async Task StopAudioAsync()
         {
             cancellationToken.Cancel();
+        }
+
+        public async Task PauseAudioAsync()
+        {
+            pauseToken.IsPaused = !pauseToken.IsPaused;
+        }
+
+        public async Task SkipAudioAsync()
+        {
+            skipAudio = true;
         }
 
         private Process CreateProcess(string path)

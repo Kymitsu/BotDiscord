@@ -23,24 +23,75 @@ namespace BotDiscord.Modules
         [Command("$join", RunMode = RunMode.Async)]
         public async Task JoinCmd()
         {
+            await Context.Message.DeleteAsync();
             await _service.JoinAudio(Context.Guild, (Context.User as IVoiceState).VoiceChannel);
         }
 
         [Command("$leave", RunMode = RunMode.Async)]
         public async Task LeaveCmd()
         {
+            await Context.Message.DeleteAsync();
             await _service.LeaveAudio(Context.Guild);
         }
 
         [Command("$play", RunMode = RunMode.Async)]
-        public async Task PlayCmd([Remainder] string song)
+        public async Task PlayCmd([Remainder] string file)
         {
-            await _service.SendAudioAsync(Context.Guild, Context.Channel, song);
+            await Context.Message.DeleteAsync();
+            if (!_service.IsBotPlaying)
+            {
+                await Context.Channel.SendMessageAsync($"Currently playing: {file}.");
+                await _service.SendAudioAsync(Context.Guild, Context.Channel, file);
+            }
+            else
+            {
+                await _service.AddToPlaylist(file);
+                await Context.Channel.SendMessageAsync($"{file} added to playlist. {_service.Playlist.Count} audio in playlist.");
+            }
+            
+        }
+
+        [Command("$add", RunMode = RunMode.Async)]
+        public async Task AddCmd([Remainder]string file)
+        {
+            await Context.Message.DeleteAsync();
+            await _service.AddToPlaylist(file);
+            await Context.Channel.SendMessageAsync($"{file} added to playlist. {_service.Playlist.Count} audio in playlist.");
+        }
+
+        [Command("$next", RunMode = RunMode.Async)]
+        public async Task NextCmd()
+        {
+            await Context.Message.DeleteAsync();
+            if (_service.IsBotPlaying)
+            {
+                await Context.Channel.SendMessageAsync($"Next Audio : {_service.Playlist.Peek()}");
+            }
+            else
+            {
+                await Context.Channel.SendMessageAsync("AudioBot is not playing!");
+            }
+        }
+
+        [Command("$skip", RunMode = RunMode.Async)]
+        public async Task SkipCmd()
+        {
+            await Context.Message.DeleteAsync();
+            if (_service.IsBotPlaying)
+            {
+                _service.SkipAudioAsync();
+                await Context.Channel.SendMessageAsync($"{_service.CurrentAudio} Skipped"); 
+            }
+            else
+            {
+                await Context.Channel.SendMessageAsync("AudioBot is not playing!");
+            }
         }
 
         [Command("$volume", RunMode = RunMode.Async)]
         public async Task VolumeCmd(string volstr)
         {
+            await Context.Message.DeleteAsync();
             double volume;
             //Try parsing in the current culture
             if (!double.TryParse(volstr, NumberStyles.Any, CultureInfo.CurrentCulture, out volume) &&
@@ -51,20 +102,74 @@ namespace BotDiscord.Modules
             }
             
             if(volume > 1.5)
-            {
                 volume = 1.5;
-            }
 
-            _service.Volume = volume;
+            if (volume <= 0)
+            {
+                _service.IsMute = true; 
+                await Context.Channel.SendMessageAsync("AudioBot muted!");
+            }
+            else
+            {
+                _service.Volume = volume;
+            }
+        }
+
+        [Command("$mute", RunMode = RunMode.Async)]
+        public async Task MuteCmd()
+        {
+            await Context.Message.DeleteAsync();
+            if (_service.IsBotPlaying)
+            {
+                if (!_service.IsMute)
+                {
+                    await Context.Channel.SendMessageAsync("AudioBot muted!");
+                }
+                else
+                {
+                    await Context.Channel.SendMessageAsync("AudioBot unmuted!");
+                }
+                _service.IsMute = !_service.IsMute; 
+            }
+            else
+            {
+                await Context.Channel.SendMessageAsync("AudioBot is not playing!");
+            }
         }
 
 
         [Command("$stop", RunMode = RunMode.Async)]
         public async Task StopCmd()
         {
-            await _service.StopAudioAsync();
+            await Context.Message.DeleteAsync();
+            if (_service.IsBotPlaying)
+            {
+                await _service.StopAudioAsync();
+                await Context.Channel.SendMessageAsync("AudioBot stopped!");
+            }
+            else
+            {
+                await Context.Channel.SendMessageAsync("AudioBot is not playing!");
+            }
         }
 
+        [Command("$pause", RunMode = RunMode.Async)]
+        public async Task PauseCmd()
+        {
+            await Context.Message.DeleteAsync();
+            if (_service.IsBotPlaying)
+            {
+                if (!_service.IsBotPaused)
+                    await Context.Channel.SendMessageAsync("AudioBot paused!");
+                else
+                    await Context.Channel.SendMessageAsync("AudioBot resumed!");
+                await _service.PauseAudioAsync(); 
+            }
+            else
+            {
+                await Context.Channel.SendMessageAsync("AudioBot is not playing!");
+            }
+        }
 
     }
 }
