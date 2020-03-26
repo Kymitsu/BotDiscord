@@ -89,6 +89,7 @@ namespace BotDiscord
                                     return new DiceResult (temp,-125);
                                 case 2:
                                     return new DiceResult(temp, -100);
+                                    // default is for 3 and more as faill result
                                 default:
                                     return new DiceResult(temp, -75);
                             }
@@ -101,10 +102,12 @@ namespace BotDiscord
                                 case 2:
                                     temp.Add(random.Next(1, 101));
                                     return new DiceResult(temp, 0);
+                                // default is for 3 and more as faill result
                                 default:
                                     temp.Add(random.Next(1, 101));
                                     return new DiceResult(temp, -15);
                             }
+                            // default case is for defense fail
                         default:
                             temp.Add(bonus);
                             switch (score)
@@ -115,11 +118,13 @@ namespace BotDiscord
                                 case 2:
                                     temp.Add(-(random.Next(1, 101)));
                                     return new DiceResult(temp, 0);
+                                // default is for 3 and more as faill result
                                 default:
                                     temp.Add(-(random.Next(1, 101)));
                                     return new DiceResult(temp, +15);
                             }
                     }
+                    // default is for secondary stat
                 default:
                     // all secondary stat are done the same way
                     switch (score)

@@ -185,10 +185,17 @@ namespace BotDiscord.Modules
                 }
                 await Context.Message.DeleteAsync();
                 DiceResult tempDice = rollableStat.Roll();
-                await Context.Channel.SendMessageAsync(string.Format("{0} rolled : {1}{2}", 
-                    Context.User.Mention, 
-                    tempDice.ResultText, 
-                    (!string.IsNullOrEmpty(rollableStat.Name) ? " (" + rollableStat.Name + ")" : "")));
+                string resultMessage = null;
+                if (tempDice.DiceResults.First() - rollableStat.Value < 0)
+                   resultMessage = "won";
+                else resultMessage = "failled";
+                await Context.Channel.SendMessageAsync(string.Format("{0} rolled : {1} against {2}{3}, {4} by {5}",
+                    Context.User.Mention,
+                    tempDice.DiceResults.First(),
+                    rollableStat.Value,
+                    (!string.IsNullOrEmpty(rollableStat.Name) ? " (" + rollableStat.Name + ")" : ""),
+                    resultMessage,
+                    tempDice.DiceResults.First() - rollableStat.Value));
                 // test si le jet et une maladress
                 int failValue = GenericTools.CheckFailValue(character.Luck, character.Unluck, rollableStat.Value);
                 if (tempDice.DiceResults.Last() <= failValue)
