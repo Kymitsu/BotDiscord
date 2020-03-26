@@ -39,8 +39,6 @@ namespace BotDiscord.Services
 
             if (ConnectedChannels.TryAdd(guild.Id, audioClient))
             {
-                // If you add a method to log happenings from this service,
-                // you can uncomment these commented lines to make use of that.
                 //await Log(LogSeverity.Info, $"Connected to voice on {guild.Name}.");
             }
         }
@@ -82,11 +80,10 @@ namespace BotDiscord.Services
 
                         while (!cancellationToken.IsCancellationRequested)
                         {
-                            byteCount = ffmpeg.StandardOutput.BaseStream // Access the underlying MemoryStream from the stdout of FFmpeg
-                                .Read(buffer, 0, blockSize); // Read stdout into the buffer
+                            byteCount = ffmpeg.StandardOutput.BaseStream.Read(buffer, 0, blockSize); 
 
                             if (byteCount == 0) // FFmpeg did not output anything
-                                break; // Break out of the while(true) loop, since there was nothing to read.
+                                break;
 
                             for (int i = 0; i < blockSize / 2; ++i)
                             {
@@ -95,7 +92,6 @@ namespace BotDiscord.Services
                                 short sample = (short)((buffer[i * 2 + 1] << 8) | buffer[i * 2]);
 
                                 // scale
-                                //const double gain = 0.5; // value between 0 and 1.0
                                 sample = (short)(sample * Volume + 0.5);
 
                                 // back to byte[]
