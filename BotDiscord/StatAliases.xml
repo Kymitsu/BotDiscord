@@ -1,35 +1,45 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Alisases>
   <Stat value="Agilité">
+    <Alias value="agi"/>
     <Alias value="agilite"/>
     <Alias value="aglite"/>
     <Alias value="agylité"/>
     <Alias value="agilyté"/>
   </Stat>
   <Stat value="Constitution">
+    <Alias value="con"/>
     <Alias value="Constitoin"/>
     <Alias value="consitution"/>
   </Stat>
   <Stat value="Dextérité">
+    <Alias value="Dex"/>
     <Alias value="Dexterité"/>
     <Alias value="Dextérite"/>
     <Alias value="Dexterite"/>
   </Stat>
   <Stat value="Force">
+    <Alias value="for"/>
     <Alias value="forse"/>
     <Alias value="forc"/>
     <Alias value="focre"/>
   </Stat>
   <Stat value="Intelligence">
+    <Alias value="int"/>
     <Alias value="inteligence"/>
     <Alias value="intelligance"/>
     <Alias value="inteligance"/>
   </Stat>
   <Stat value="Perception">
+    <Alias value="per"/>
   </Stat>
   <Stat value="Pouvoir">
+    <Alias value="pou"/>
+    <Alias value="pov"/>
+    <Alias value="pouv"/>
   </Stat>
   <Stat value="Volonté">
+    <Alias value="vol"/>
     <Alias value="Volonte"/>
   </Stat>
   <Stat value="Initiative">
