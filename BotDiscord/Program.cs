@@ -42,6 +42,7 @@ namespace BotDiscord
                 .AddSingleton(_client)
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
+                .AddSingleton<AudioService>()
                 // Logging
                 //.AddLogging()
                 //.AddSingleton<LogService>()

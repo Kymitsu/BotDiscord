@@ -37,7 +37,7 @@ namespace BotDiscord.Services
             if (message.Source != MessageSource.User) return;
             
             int argPos = 0;
-            if (!message.Content.StartsWith("!")) return;
+            //if (!message.Content.StartsWith("!")) return;
             
             var context = new SocketCommandContext(_discord, message);
             var result = await _commands.ExecuteAsync(context, argPos, _provider);
