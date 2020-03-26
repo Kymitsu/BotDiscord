@@ -38,6 +38,7 @@ namespace BotDiscord.RPG
 
         private Boolean _luck;
         private Boolean _unluck;
+        private Boolean _destinFuneste; // en français par ce que etienne a dit que c'était ok
 
         private List<RollableStat> _allRollableStats = new List<RollableStat>();
 
@@ -85,6 +86,7 @@ namespace BotDiscord.RPG
             _pppFree = Convert.ToInt32(excelWorksheet.Cells["Q21"].Value);
             _luck = Convert.ToBoolean(excelWorksheet.Cells["DC30"].Value);
             _unluck = Convert.ToBoolean(excelWorksheet.Cells["DC153"].Value);
+            _destinFuneste = Convert.ToBoolean(excelWorksheet.Cells["DC165"].Value);
             //Base stats
             foreach (var cell in excelWorksheet.Cells[22, 2, 30, 2])
             {
@@ -161,6 +163,7 @@ namespace BotDiscord.RPG
         public int PppFree { get => _pppFree; set => _pppFree = value; }
         public Boolean Luck { get => _luck; set => _luck = value; }
         public Boolean Unluck { get => _unluck; set => _unluck = value; }
+        public Boolean DestinFuneste { get => _destinFuneste; set => _destinFuneste = value; }
         public List<RollableStat> AllStats { get => _allRollableStats; set => _allRollableStats = value; }
         public List<Roll10Stat> BaseStats { get => _baseStats; set => _baseStats = value; }
         public List<Roll100Stat> Resistances { get => _resistances; set => _resistances = value; }
