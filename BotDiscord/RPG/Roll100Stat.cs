@@ -10,9 +10,9 @@ namespace BotDiscord.RPG
         {
         }
 
-        public override DiceResult Roll()
+        public override DiceResult Roll(int temporaryBonus)
         {
-            return GenericTools.AnimaRoll(Group,Value);
+            return GenericTools.AnimaRoll(Group, Value + temporaryBonus);
         }
         public override DiceResult FailRoll(int score)
         {

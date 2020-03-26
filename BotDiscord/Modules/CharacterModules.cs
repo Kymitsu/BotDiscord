@@ -93,7 +93,7 @@ namespace BotDiscord.Modules
                 try
                 {
                     AnimaCharacterRepository.animaCharacters.Where(x => x.Player == Context.Message.Author.Mention).ToList().ForEach(x => x.IsCurrent = false);
-                    character = AnimaCharacterRepository.animaCharacters.First(x => x.Name == name);
+                    character = AnimaCharacterRepository.animaCharacters.First(x => x.Name.ToLower() == name.ToLower());
                     character.IsCurrent = true;
                     
                     //await (Context.Message.Author as IGuildUser).ModifyAsync(x => x.Nickname = character.Name);
@@ -165,7 +165,11 @@ namespace BotDiscord.Modules
                 await Context.Channel.SendMessageAsync("Error 404: Character not found or not loaded!");
                 return;
             }
-            string stat = string.Join(" ", s).ToLower();
+
+            string statBonusStr = s.FirstOrDefault(x => x.StartsWith("+"));
+            int statBonus = Convert.ToInt32(statBonusStr);
+            string stat = string.Join(" ", s).ToLower().Replace($" {statBonusStr}", "");
+
             if (stat == null || stat == string.Empty)
             {
                 await Context.Message.DeleteAsync();
@@ -184,33 +188,45 @@ namespace BotDiscord.Modules
                     return;
                 }
                 await Context.Message.DeleteAsync();
-                DiceResult tempDice = rollableStat.Roll();
-                string resultMessage = null;
-                if (tempDice.DiceResults.First() - rollableStat.Value < 0)
-                   resultMessage = "won";
-                else resultMessage = "failled";
-                await Context.Channel.SendMessageAsync(string.Format("{0} rolled : {1} against {2}{3}, {4} by {5}",
-                    Context.User.Mention,
-                    tempDice.DiceResults.First(),
-                    rollableStat.Value,
-                    (!string.IsNullOrEmpty(rollableStat.Name) ? " (" + rollableStat.Name + ")" : ""),
-                    resultMessage,
-                    tempDice.DiceResults.First() - rollableStat.Value));
-                // test si le jet et une maladress
-                int failValue = GenericTools.CheckFailValue(character.Luck, character.Unluck, rollableStat.Value);
-                if (tempDice.DiceResults.Last() <= failValue)
+
+                DiceResult tempDice = rollableStat.Roll(statBonus);
+
+                if(rollableStat is Roll100Stat)
                 {
-                    // si oui lance le jet de maladress
-;                   int tempFail = tempDice.DiceResults.Last();
-                    tempDice = rollableStat.FailRoll(tempFail);
-                    // et affiche le resultat de maladress
-                    await Context.Channel.SendMessageAsync(String.Format("{0} maladress : {1}{2}",
-                    Context.User.Mention,
-                    tempDice.ResultText,
-                    (!string.IsNullOrEmpty(rollableStat.Name) ? " (" + rollableStat.Name + ")" : "")));
+                    await Context.Channel.SendMessageAsync(string.Format("{0} rolled : {1}{2}",
+                        Context.User.Mention,
+                        tempDice.ResultText,
+                        (!string.IsNullOrEmpty(rollableStat.Name) ? " (" + rollableStat.Name + ")" : "")));
+
+                    // test si le jet et une maladress
+                    int failValue = GenericTools.CheckFailValue(character.Luck, character.Unluck, rollableStat.Value);
+                    if (tempDice.DiceResults.Last() <= failValue)
+                    {
+                        // si oui lance le jet de maladress
+                        int tempFail = tempDice.DiceResults.Last();
+                        tempDice = rollableStat.FailRoll(tempFail);
+                        // et affiche le resultat de maladress
+                        await Context.Channel.SendMessageAsync(String.Format("{0} maladress : {1}{2}",
+                        Context.User.Mention,
+                        tempDice.ResultText,
+                        (!string.IsNullOrEmpty(rollableStat.Name) ? " (" + rollableStat.Name + ")" : "")));
+                    }
                 }
-                
-                
+                else
+                {
+                    string resultMessage = null;
+                    if (tempDice.DiceResults.First() - (rollableStat.Value + statBonus) < 0)
+                        resultMessage = "won";
+                    else resultMessage = "failled";
+
+                    await Context.Channel.SendMessageAsync(string.Format("{0} rolled : {1} against {2}{3}, {4} by {5}",
+                        Context.User.Mention,
+                        tempDice.DiceResults.First(),
+                        rollableStat.Value + statBonus,
+                        (!string.IsNullOrEmpty(rollableStat.Name) ? " (" + rollableStat.Name + ")" : ""),
+                        resultMessage,
+                        tempDice.DiceResults.First() - (rollableStat.Value + statBonus)));
+                }
             }
         }
 

@@ -34,7 +34,6 @@ namespace BotDiscord.RPG
                 xmlAliases.LoadXml(xmlString); 
             }
 
-            var test = xmlAliases.SelectSingleNode($"Alisases//Stat[@value=\"{Name}\"]");
             XmlNodeList aliasNodes = xmlAliases.SelectSingleNode($"Alisases//Stat[@value=\"{Name}\"]")?.ChildNodes;
             if (aliasNodes != null)
             {
@@ -45,7 +44,7 @@ namespace BotDiscord.RPG
             }
         }
 
-        public abstract DiceResult Roll();
+        public abstract DiceResult Roll(int temporaryBonus);
         public abstract DiceResult FailRoll(int score);
 
         public override string ToString()

@@ -153,9 +153,6 @@ namespace BotDiscord
             }
             else
             {
-
-            }
-            {
                 return new DiceResult(diceResults, bonus);
             }
         }
