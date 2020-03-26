@@ -51,11 +51,14 @@ namespace BotDiscord
             return result;
         }
 
-        public static DiceResult AnimaRoll(int bonus = 0)
+        public static DiceResult AnimaRoll(Boolean destinFuneste,int bonus = 0)
         {
+            if (destinFuneste == true)
+                return AnimaRoll(bonus, new List<int>(), 101);
+            else
             return AnimaRoll(bonus, new List<int>(), 90);
         }
-        public static DiceResult AnimaRoll(string group,int bonus = 0)
+        public static DiceResult AnimaRoll(string group, Boolean destinFuneste,int bonus = 0)
         {
             if (group == "Résistance")
             {
@@ -63,7 +66,7 @@ namespace BotDiscord
             }
             else
             {
-                return AnimaRoll(bonus);
+                return AnimaRoll(destinFuneste,bonus);
             }
         }
         public static DiceResult FaillRoll(string group,string name,int bonus,int score)
@@ -144,12 +147,13 @@ namespace BotDiscord
         }
         private static DiceResult AnimaRoll(int bonus, List<int> diceResults, int openRollValue)
         {
-            openRollValue = openRollValue > 100 ? 100 : openRollValue;
             int temp = random.Next(1, 100+1);
             diceResults.Add(temp);
             if (temp >= openRollValue)
             {
-                return AnimaRoll(bonus, diceResults, openRollValue + 1);
+                openRollValue++;
+                openRollValue = openRollValue > 100 ? 100 : openRollValue;
+                return AnimaRoll(bonus, diceResults, openRollValue);
             }
             else
             {

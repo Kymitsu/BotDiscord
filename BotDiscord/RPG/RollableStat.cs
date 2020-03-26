@@ -44,7 +44,7 @@ namespace BotDiscord.RPG
             }
         }
 
-        public abstract DiceResult Roll(int temporaryBonus);
+        public abstract DiceResult Roll(int temporaryBonus,Boolean destinFuneste);
         public abstract DiceResult FailRoll(int score);
 
         public override string ToString()

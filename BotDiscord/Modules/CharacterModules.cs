@@ -189,7 +189,7 @@ namespace BotDiscord.Modules
                 }
                 await Context.Message.DeleteAsync();
 
-                DiceResult tempDice = rollableStat.Roll(statBonus);
+                DiceResult tempDice = rollableStat.Roll(statBonus,character.DestinFuneste);
 
                 if(rollableStat is Roll100Stat)
                 {

@@ -53,7 +53,7 @@ namespace BotDiscord.Modules
             await Context.Message.DeleteAsync();
             await Context.Channel.SendMessageAsync(Context.User.Mention 
                 + " rolled : " 
-                + GenericTools.AnimaRoll(num).ResultText 
+                + GenericTools.AnimaRoll(false,num).ResultText 
                 + (!string.IsNullOrEmpty(desc.Trim())? " (" + desc + ")":"")
                 );
         }
