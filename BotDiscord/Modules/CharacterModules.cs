@@ -166,9 +166,13 @@ namespace BotDiscord.Modules
                 return;
             }
 
-            string statBonusStr = s.FirstOrDefault(x => x.StartsWith("+"));
+            string statBonusStr = s.FirstOrDefault(x => x.StartsWith("+") || x.StartsWith("-"));
             int statBonus = Convert.ToInt32(statBonusStr);
-            string stat = string.Join(" ", s).ToLower().Replace($" {statBonusStr}", "");
+            string stat = string.Join(" ", s).ToLower();
+            if (!string.IsNullOrWhiteSpace(statBonusStr))
+            {
+                stat = stat.Replace($" {statBonusStr}", ""); 
+            }
 
             if (stat == null || stat == string.Empty)
             {
