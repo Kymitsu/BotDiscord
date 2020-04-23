@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Linq;
+using System.Diagnostics;
+using System.Globalization;
 
 namespace BotDiscord.RPG
 {
@@ -15,8 +17,11 @@ namespace BotDiscord.RPG
 
         public static void LoadFromCurrentDirectory()
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             string[] allFiles = Directory.GetFiles(savePath, "@*");
-
+            int cCount = 0;
+            Console.WriteLine($"{DateTime.Now.ToString("HH:mm:ss", CultureInfo.CurrentCulture)} Loading characters: {cCount}/{allFiles.Length}");
             foreach (string file in allFiles)
             {
                 string mention = "<" + Path.GetFileNameWithoutExtension(file).Split('_').First() + ">";
@@ -30,7 +35,12 @@ namespace BotDiscord.RPG
                     AnimaCharacter animaCharacter = new AnimaCharacter(worksheet, mention);
                     animaCharacters.Add(animaCharacter);
                 }
+                cCount++;
+                Console.Clear();
+                Console.WriteLine($"{DateTime.Now.ToString("HH:mm:ss", CultureInfo.CurrentCulture)} Loading characters: {cCount}/{allFiles.Length}");
             }
+            sw.Stop();
+            Console.WriteLine($"{DateTime.Now.ToString("HH:mm:ss", CultureInfo.CurrentCulture)} All characters loaded in : {sw.ElapsedMilliseconds}ms");
         }
 
         public static void SaveExcelCharacter(ExcelPackage package, string mention, string characterName)
