@@ -1,4 +1,5 @@
 ﻿using BotDiscord.RPG;
+using BotDiscord.Services;
 using Discord;
 using Discord.Commands;
 using Discord.Rest;
@@ -117,12 +118,8 @@ namespace BotDiscord.Modules
         [Command("info"), Summary("Informations sur le personnage")]
         public async Task Info(params string[] s)
         {
-            AnimaCharacter character;
-            try
-            {
-                character = (from ac in AnimaCharacterRepository.animaCharacters where ac.Player == Context.Message.Author.Mention && ac.IsCurrent select ac).First();
-            }
-            catch (Exception ex)
+            AnimaCharacter character = AnimaCharacterRepository.FindOneByMention(Context.Message.Author.Mention);
+            if (character == null)
             {
                 await Context.Channel.SendMessageAsync("Error 404: Character not found or not loaded!");
                 return;
@@ -155,19 +152,15 @@ namespace BotDiscord.Modules
         [Command("r"), Summary("Lance les dées pour la stat passée en paramètre")]
         public async Task Roll(params string[] s)
         {
-            AnimaCharacter character;
-            try
-            {
-                character = (from ac in AnimaCharacterRepository.animaCharacters where ac.Player == Context.Message.Author.Mention && ac.IsCurrent select ac).First();
-            }
-            catch (Exception)
+            AnimaCharacter character = AnimaCharacterRepository.FindOneByMention(Context.Message.Author.Mention);
+            if(character == null)
             {
                 await Context.Channel.SendMessageAsync("Error 404: Character not found or not loaded!");
                 return;
             }
 
             string statBonusStr = s.FirstOrDefault(x => x.StartsWith("+") || x.StartsWith("-"));
-            int statBonus = Convert.ToInt32(statBonusStr);
+            int bonus = Convert.ToInt32(statBonusStr);
             string stat = string.Join(" ", s).ToLower();
             if (!string.IsNullOrWhiteSpace(statBonusStr))
             {
@@ -181,57 +174,31 @@ namespace BotDiscord.Modules
             }
             else
             {
-                RollableStat rollableStat;
-                try
-                {
-                    rollableStat = character.AllStats.First(x => x.Name.ToLower() == stat || x.Aliases.Any(y => y.ToLower() == stat));
-                }
-                catch (Exception)
-                {
-                    await Context.Channel.SendMessageAsync("Error 404: Stat not found (" + stat + ")");
-                    return;
-                }
                 await Context.Message.DeleteAsync();
-
-                DiceResult tempDice = rollableStat.Roll(statBonus,character.DestinFuneste);
-
-                if(rollableStat is Roll100Stat)
-                {
-                    await Context.Channel.SendMessageAsync(string.Format("{0} rolled : {1}{2}",
-                        Context.User.Mention,
-                        tempDice.ResultText,
-                        (!string.IsNullOrEmpty(rollableStat.Name) ? " (" + rollableStat.Name + ")" : "")));
-
-                    // test si le jet et une maladress
-                    int failValue = GenericTools.CheckFailValue(character.Luck, character.Unluck, rollableStat.Value);
-                    if (tempDice.DiceResults.Last() <= failValue)
-                    {
-                        // si oui lance le jet de maladress
-                        int tempFail = tempDice.DiceResults.Last();
-                        tempDice = rollableStat.FailRoll(tempFail);
-                        // et affiche le resultat de maladress
-                        await Context.Channel.SendMessageAsync(String.Format("{0} maladress : {1}{2}",
-                        Context.User.Mention,
-                        tempDice.ResultText,
-                        (!string.IsNullOrEmpty(rollableStat.Name) ? " (" + rollableStat.Name + ")" : "")));
-                    }
-                }
-                else
-                {
-                    string resultMessage = null;
-                    if (tempDice.DiceResults.First() - (rollableStat.Value + statBonus) < 0)
-                        resultMessage = "won";
-                    else resultMessage = "failled";
-
-                    await Context.Channel.SendMessageAsync(string.Format("{0} rolled : {1} against {2}{3}, {4} by {5}",
-                        Context.User.Mention,
-                        tempDice.DiceResults.First(),
-                        rollableStat.Value + statBonus,
-                        (!string.IsNullOrEmpty(rollableStat.Name) ? " (" + rollableStat.Name + ")" : ""),
-                        resultMessage,
-                        tempDice.DiceResults.First() - (rollableStat.Value + statBonus)));
-                }
+                await Context.Channel.SendMessageAsync(string.Format("{0} {1}",
+                    Context.User.Mention,
+                    character.Roll(stat, bonus)));
             }
+        }
+
+        [Command("fight")]
+        public async Task FightMessage()
+        {
+            _ = Context.Message.DeleteAsync();
+            var embed = new EmbedBuilder();
+            embed.Title = "Vos actions de combat!";
+            embed.Description = $"{new Emoji("🏃‍♂️")} : Initiative\n{new Emoji("⚔️")} : Attaque\n{new Emoji("🛡️")} : Défense\n{new Emoji("👀")} : Observation";
+
+            var msg = await Context.Channel.SendMessageAsync("", false, embed);
+
+            CommandHandlingService.ReactionMessages.Add(msg.Id);
+
+            foreach (Emoji emoji in CommandHandlingService.EmotesAction.Keys)
+            {
+                await msg.AddReactionAsync(emoji);
+                Task.Delay(1000).Wait();
+            }
+
         }
 
         public string KeywordsHelp(AnimaCharacter character)

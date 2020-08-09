@@ -5,6 +5,8 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using System.Linq;
+using System.Collections.Generic;
+using BotDiscord.RPG;
 
 namespace BotDiscord.Services
 {
@@ -13,6 +15,9 @@ namespace BotDiscord.Services
         private readonly DiscordSocketClient _discord;
         private readonly CommandService _commands;
         private IServiceProvider _provider;
+        
+        public static Dictionary<IEmote, string> EmotesAction = new Dictionary<IEmote, string>();
+        public static List<ulong> ReactionMessages = new List<ulong>();
 
         public CommandHandlingService(IServiceProvider provider, DiscordSocketClient discord, CommandService commands)
         {
@@ -21,6 +26,8 @@ namespace BotDiscord.Services
             _provider = provider;
 
             _discord.MessageReceived += MessageReceived;
+            _discord.ReactionAdded += ReactionAddedOrRemoved;
+            _discord.ReactionRemoved += ReactionAddedOrRemoved;
         }
 
         public async Task InitializeAsync(IServiceProvider provider)
@@ -28,6 +35,11 @@ namespace BotDiscord.Services
             _provider = provider;
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
             // Add additional initialization code here...
+
+            EmotesAction.Add(new Emoji("🏃‍♂️"), "initiative");
+            EmotesAction.Add(new Emoji("⚔️"), "attaque");
+            EmotesAction.Add(new Emoji("🛡️"), "défense");
+            EmotesAction.Add(new Emoji("👀"), "observation");
         }
 
         private async Task MessageReceived(SocketMessage rawMessage)
@@ -47,6 +59,25 @@ namespace BotDiscord.Services
             {
                 await Log(context.User.Username + " : " + rawMessage + " : " + result.ToString());
                 //await context.Channel.SendMessageAsync(context.User.Mention + " : " + result.ToString());
+            }
+        }
+
+        private async Task ReactionAddedOrRemoved(Cacheable<IUserMessage, ulong> cache, ISocketMessageChannel channel, SocketReaction reaction)
+        {
+            if (reaction.User.Value.IsBot) return;
+
+            if (ReactionMessages.Contains(cache.Id))
+            {
+                AnimaCharacter character = AnimaCharacterRepository.FindOneByMention(reaction.User.Value.Mention);
+                if (character == null)
+                {
+                    await channel.SendMessageAsync("Error 404: Character not found or not loaded!");
+                    return;
+                }
+
+                await channel.SendMessageAsync(string.Format("{0} {1}",
+                    reaction.User.Value.Mention,
+                    character.Roll(EmotesAction[reaction.Emote], 0)));
             }
         }
 

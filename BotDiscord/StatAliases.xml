@@ -155,12 +155,15 @@
     <Alias value="observcation"/>
   </Stat>
   <Stat value="Pistage">
+    <Alias value="Pistag"/>
   </Stat>
   <Stat value="Vigilance">
     <Alias value="vigilence"/>
     <Alias value="vigilenc"/>
   </Stat>
   <Stat value="Camouflage">
+    <Alias value="Camoufage"/>
+    <Alias value="Camouflag"/>
   </Stat>
   <Stat value="Crochetage">
   </Stat>
@@ -415,6 +418,7 @@
     <Alias value="l'oie"/>
   </Stat>
   <Stat value="Tactique">
+    <Alias value="Tactic"/>
   </Stat>
   <Stat value="Rphy">
     <Alias value="résistance physique"/>

@@ -17,7 +17,6 @@ namespace BotDiscord
 
         private DiscordSocketClient _client;
         private IConfiguration _config;
-        //private const string _token = "MjQ5MjI2NzQxMzk3MTkyNzA0.DKLSog.-IwwSv6e06thBP554zRhRt0vxlQ";
 
         public async Task MainAsync()
         {
