@@ -56,7 +56,7 @@ namespace BotDiscord
             if (destinFuneste == true)
                 return AnimaRoll(bonus, new List<int>(), 101);
             else
-            return AnimaRoll(bonus, new List<int>(), 90);
+                return AnimaRoll(bonus, new List<int>(), 90);
         }
         public static DiceResult AnimaRoll(string group, Boolean destinFuneste,int bonus = 0)
         {
@@ -211,14 +211,11 @@ namespace BotDiscord
 
     public class DiceResult
     {
-        private List<int> _diceResults;
         private int _bonus = 0;
-        private int _total = 0;
-        private string _resultText = string.Empty;
 
         public DiceResult(List<int> diceResults, int bonus)
         {
-            _diceResults = diceResults;
+            DiceResults = diceResults;
             _bonus = bonus;
             SumRolls();
             BuildResultText();
@@ -226,21 +223,21 @@ namespace BotDiscord
 
         private void SumRolls()
         {
-            _total = 0;
-            foreach (int roll in _diceResults)
+            Total = 0;
+            foreach (int roll in DiceResults)
             {
-                _total += roll;
+                Total += roll;
             }
-            _total += _bonus;
+            Total += _bonus;
         }
 
         private void BuildResultText()
         {
-            _resultText = string.Format("`{0} + {1} = {2}`", string.Join(" + ", _diceResults), _bonus, _total);
+            ResultText = string.Format("`{0} + {1} = {2}`", string.Join(" + ", DiceResults), _bonus, Total);
         }
 
-        public List<int> DiceResults { get => _diceResults; set => _diceResults = value; }
-        public int Total { get => _total; set => _total = value; }
-        public string ResultText { get => _resultText; set => _resultText = value; }
+        public List<int> DiceResults { get; set; }
+        public int Total { get; set; } = 0;
+        public string ResultText { get; set; } = string.Empty;
     }
 }

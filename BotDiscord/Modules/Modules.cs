@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Linq;
 using Discord;
+using BotDiscord.RPG;
 
 namespace BotDiscord.Modules
 {
@@ -13,6 +14,7 @@ namespace BotDiscord.Modules
     public class TestModule : ModuleBase
     {
         private CommandService _commandService;
+        private static DateTime _sessionStart = DateTime.MinValue;
 
         public TestModule(CommandService commandService)
         {
@@ -20,9 +22,11 @@ namespace BotDiscord.Modules
         }
 
         [Command("!")]
-        public async Task MultipleRoll(string exrp)
+        public async Task MultipleRoll(params string[] s)
         {
-            var values = exrp.Split('d', '+');
+            string expr = string.Join("", s).Replace("!", "");
+
+            var values = expr.Split('d', '+');
             int.TryParse(values[0], out int number);
             int.TryParse(values[1], out int size);
             int bonus = 0;
@@ -37,7 +41,7 @@ namespace BotDiscord.Modules
             {
                 results.Add(GenericTools.SimpleRoll(size).Total);
             }
-            string msg = Context.User.Mention + $" ({exrp}) : " + string.Join(" + ", results);
+            string msg = Context.User.Mention + $" ({expr}) : " + string.Join(" + ", results);
             if (values.Count() > 2)
             {
                 msg += " + " + bonus;
@@ -45,6 +49,59 @@ namespace BotDiscord.Modules
             msg += " = " + (results.Sum() + bonus);
             await Context.Message.DeleteAsync();
             await Context.Channel.SendMessageAsync(msg);
+        }
+
+        [Command("!session start")]
+        public async Task JdrSessionStart()
+        {
+            await Context.Message.DeleteAsync();
+            if (_sessionStart == DateTime.MinValue)
+            {
+                _sessionStart = DateTime.Now;
+                await Context.Channel.SendMessageAsync("> **Début de séance**"); 
+            }
+            else
+            {
+                TimeSpan ellapsedTime = DateTime.Now - _sessionStart;
+                await Context.Channel.SendMessageAsync($"> Séance cours depuis {ellapsedTime.Hours}h {ellapsedTime.Minutes}m");
+            }
+        }
+
+        [Command("!session end")]
+        public async Task JdrSessionEnd()
+        {
+            await Context.Message.DeleteAsync();
+            DateTime end = DateTime.Now;
+            TimeSpan ellapsedTime = end - _sessionStart;
+            await Context.Channel.SendMessageAsync($">>> **Fin de séance**\nDurée de la séance: {ellapsedTime.Hours}h {ellapsedTime.Minutes}m");
+            _sessionStart = DateTime.MinValue;
+        }
+
+        [Command("!session stats")]
+        public async Task SessionStats()
+        {
+            await Context.Message.DeleteAsync();
+            List<AnimaCharacter> characters = AnimaCharacterRepository.animaCharacters.Where(x => x.IsCurrent).ToList();
+
+            Dictionary<string, List<DiceResult>> allStatistics = new Dictionary<string, List<DiceResult>>();
+            allStatistics = characters.SelectMany(x => x.RollStatistics)
+                .ToLookup(kvp => kvp.Key, kvp => kvp.Value)
+                .ToDictionary(group => group.Key, group => group.SelectMany(x => x).ToList());
+
+            int longestStat = allStatistics.Keys.Select(x => x).Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(string.Format($"|{{0,-{longestStat}}}|{{1,-13}}|{{2,-10}}|{{3,-10}}|", "*Stat*", "*Nb rolls*", "*Moy*", "*Moy/dé*"));
+            foreach (var kvp in allStatistics)
+            {
+                string stat = kvp.Key;
+                int rolls = kvp.Value.Count;
+                int mean = (int)(kvp.Value.Sum(x => x.DiceResults.Sum()) /kvp.Value.Count);
+                int meanPerDice = (int)(kvp.Value.Sum(x => x.DiceResults.Sum()) / kvp.Value.Sum(x => x.DiceResults.Count));
+                sb.AppendLine(string.Format($"|{{0,-{longestStat}}}|{{1,13}}|{{2,10}}|{{3,10}}|", stat, rolls, mean, meanPerDice));
+            }
+
+            await Context.Channel.SendMessageAsync($"```{sb.ToString()}```");
+
         }
 
         [Command("!ar"), Summary("Lance un Dé 100 avec jet ouvert")]

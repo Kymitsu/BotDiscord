@@ -68,7 +68,7 @@ namespace BotDiscord.Services
 
             if (ReactionMessages.Contains(cache.Id))
             {
-                AnimaCharacter character = AnimaCharacterRepository.FindOneByMention(reaction.User.Value.Mention);
+                AnimaCharacter character = AnimaCharacterRepository.FindCurrentByMention(reaction.User.Value.Mention);
                 if (character == null)
                 {
                     await channel.SendMessageAsync("Error 404: Character not found or not loaded!");

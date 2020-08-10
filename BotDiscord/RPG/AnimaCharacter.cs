@@ -106,7 +106,7 @@ namespace BotDiscord.RPG
             }
 
             DiceResult resultDice = rollableStat.Roll(bonus, this.DestinFuneste);
-
+            this.AddRollStatistics(rollableStat, resultDice);
 
             if (rollableStat is Roll100Stat)
             {
@@ -146,6 +146,17 @@ namespace BotDiscord.RPG
             return resultMsg;
         }
 
+        private void AddRollStatistics(RollableStat stat, DiceResult dice)
+        {
+            string statName = stat.Name.Replace(" ", "").Replace("Défense:", "");
+            if (!RollStatistics.ContainsKey(statName))
+            {
+                RollStatistics.Add(statName, new List<DiceResult>());
+            }
+
+            RollStatistics[statName].Add(dice);
+        }
+
 
         //Utiliser uniquement pour les events reactionAdded reactionDeleted
         public static string StaticRoll(AnimaCharacter character, string rawStat, int bonus)
@@ -181,6 +192,7 @@ namespace BotDiscord.RPG
         public List<Roll100Stat> Resistances { get; set; } = new List<Roll100Stat>();
         public List<Roll100Stat> BattleStats { get; set; } = new List<Roll100Stat>();
         public List<Roll100Stat> SecondaryStats { get; set; } = new List<Roll100Stat>();
+        public Dictionary<string, List<DiceResult>> RollStatistics { get; set; } = new Dictionary<string, List<DiceResult>>();
 
         #endregion
     }

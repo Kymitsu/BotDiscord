@@ -118,7 +118,7 @@ namespace BotDiscord.Modules
         [Command("info"), Summary("Informations sur le personnage")]
         public async Task Info(params string[] s)
         {
-            AnimaCharacter character = AnimaCharacterRepository.FindOneByMention(Context.Message.Author.Mention);
+            AnimaCharacter character = AnimaCharacterRepository.FindCurrentByMention(Context.Message.Author.Mention);
             if (character == null)
             {
                 await Context.Channel.SendMessageAsync("Error 404: Character not found or not loaded!");
@@ -152,7 +152,7 @@ namespace BotDiscord.Modules
         [Command("r"), Summary("Lance les dées pour la stat passée en paramètre")]
         public async Task Roll(params string[] s)
         {
-            AnimaCharacter character = AnimaCharacterRepository.FindOneByMention(Context.Message.Author.Mention);
+            AnimaCharacter character = AnimaCharacterRepository.FindCurrentByMention(Context.Message.Author.Mention);
             if(character == null)
             {
                 await Context.Channel.SendMessageAsync("Error 404: Character not found or not loaded!");
@@ -196,7 +196,7 @@ namespace BotDiscord.Modules
             foreach (Emoji emoji in CommandHandlingService.EmotesAction.Keys)
             {
                 await msg.AddReactionAsync(emoji);
-                Task.Delay(1000).Wait();
+                await Task.Delay(1000);
             }
 
         }
