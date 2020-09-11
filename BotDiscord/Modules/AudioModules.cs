@@ -4,6 +4,9 @@ using Discord.Commands;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -112,6 +115,7 @@ namespace BotDiscord.Modules
             else
             {
                 _service.Volume = volume;
+                await Context.Channel.SendMessageAsync($"Volume set to {volume}");
             }
         }
 
@@ -168,6 +172,40 @@ namespace BotDiscord.Modules
             else
             {
                 await Context.Channel.SendMessageAsync("AudioBot is not playing!");
+            }
+        }
+
+        [Command("$upload", RunMode = RunMode.Async)]
+        public async Task UploadCmd()
+        {
+            if (Context.Message.Attachments.Any())
+            {
+                IAttachment attachment = Context.Message.Attachments.First();
+                using (HttpClient hclient = new HttpClient())
+                {
+                    Stream stream;
+                    try
+                    {
+                        stream = await hclient.GetStreamAsync(attachment.Url);
+                    }
+                    catch (Exception)
+                    {
+                        try
+                        {
+                            stream = await hclient.GetStreamAsync(attachment.ProxyUrl);
+                        }
+                        catch (Exception)
+                        {
+                            throw;
+                        }
+                    }
+
+                    FileStream fs = File.Create($"{Directory.GetCurrentDirectory()}\\Sounds\\{attachment.Filename}");
+                    stream.CopyTo(fs);
+
+                    await Context.Message.DeleteAsync();
+                    await Context.Channel.SendMessageAsync("File uploaded successfully");
+                }
             }
         }
 
