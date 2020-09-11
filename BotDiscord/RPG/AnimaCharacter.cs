@@ -75,7 +75,7 @@ namespace BotDiscord.RPG
             }
 
             //Secondary stats
-            foreach (var cell in excelWorksheet.Cells[75,2,142,2])
+            foreach (var cell in excelWorksheet.Cells[75,2,143,2])
             {
                 if (!cell.Style.Font.Bold)
                 {

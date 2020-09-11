@@ -435,4 +435,9 @@
   <Stat value="Rpsy ">
     <Alias value="résistance psychique"/>
   </Stat>
+  <Stat value="Détection du ki">
+    <Alias value="Detection du ki"/>
+    <Alias value="detection de ki"/>
+    <Alias value="détection de ki"/>
+  </Stat>
 </Alisases> 
