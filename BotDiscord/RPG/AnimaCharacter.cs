@@ -16,6 +16,7 @@ namespace BotDiscord.RPG
         {
             Player = player;
             IsCurrent = false;
+            ImageUrl = excelWorksheet.Cells["AK1"].Text;
 
             //Character info
             Name = excelWorksheet.Cells["E1"].Text;
@@ -23,22 +24,34 @@ namespace BotDiscord.RPG
             Class = excelWorksheet.Cells["F3"].Text;
             Level = Convert.ToInt32(excelWorksheet.Cells["E5"].Value);
             Hp = Convert.ToInt32(excelWorksheet.Cells["B12"].Value);
+            string temp = excelWorksheet.Cells["B13"].Text;
+            CurrentHp = string.IsNullOrEmpty(temp) ? Hp : Convert.ToInt32(temp);
+
             Regeneration = Convert.ToInt32(excelWorksheet.Cells["J18"].Value);
-            Exhaust = Convert.ToInt32(excelWorksheet.Cells["B18"].Value);
+            Fatigue = Convert.ToInt32(excelWorksheet.Cells["B18"].Value);
+            temp = excelWorksheet.Cells["B19"].Text;
+            CurrentFatigue = string.IsNullOrEmpty(temp) ? Fatigue : Convert.ToInt32(temp);
             Movement = Convert.ToInt32(excelWorksheet.Cells["F18"].Value);
 
             TotalKiPoints = Convert.ToInt32(excelWorksheet.Cells["V39"].Value);
+            temp = excelWorksheet.Cells["Z39"].Text;
+            CurrentKi = string.IsNullOrEmpty(temp) ? TotalKiPoints : Convert.ToInt32(temp);
+
             ArmorPoint = Convert.ToInt32(excelWorksheet.Cells["AC55"].Value);
 
             ZeonPoints = Convert.ToInt32(excelWorksheet.Cells["U15"].Value);
+            temp = excelWorksheet.Cells["U16"].Text;
+            CurrentZeon = string.IsNullOrEmpty(temp) ? ZeonPoints : Convert.ToInt32(temp);
             Amr = Convert.ToInt32(excelWorksheet.Cells["U21"].Value);
             AmrRegen = Convert.ToInt32(excelWorksheet.Cells["U24"].Value);
             InnateMagic = Convert.ToInt32(excelWorksheet.Cells["U27"].Value);
             MagicLevel = Convert.ToInt32(excelWorksheet.Cells["AD8"].Value);
 
             PppFree = Convert.ToInt32(excelWorksheet.Cells["Q21"].Value);
-            Luck = Convert.ToBoolean(excelWorksheet.Cells["DC30"].Value);
-            Unluck = Convert.ToBoolean(excelWorksheet.Cells["DC153"].Value);
+            temp = excelWorksheet.Cells["Q22"].Text;
+            CurrentPpp = string.IsNullOrEmpty(temp) ? PppFree : Convert.ToInt32(temp);
+            IsLucky = Convert.ToBoolean(excelWorksheet.Cells["DC30"].Value);
+            IsUnlucky = Convert.ToBoolean(excelWorksheet.Cells["DC153"].Value);
             DestinFuneste = Convert.ToBoolean(excelWorksheet.Cells["DC165"].Value);
             //Base stats
             foreach (var cell in excelWorksheet.Cells[22, 2, 30, 2])
@@ -49,7 +62,7 @@ namespace BotDiscord.RPG
             //Resistances
             foreach (var cell in excelWorksheet.Cells[32, 2, 36, 2])
             {
-                Resistances.Add(new Roll100Stat(StatGroups[1], cell.Text, Convert.ToInt32(cell.Offset(0, 2).Value)));
+                Resistances.Add(new ResistanceStat(StatGroups[1], cell.Text, Convert.ToInt32(cell.Offset(0, 2).Value)));
             }
 
             //Battle stats
@@ -110,12 +123,11 @@ namespace BotDiscord.RPG
 
             if (rollableStat is Roll100Stat)
             {
-                resultMsg = string.Format("rolled : {0}{1}",
-                    resultDice.ResultText,
-                    (!string.IsNullOrEmpty(rollableStat.Name) ? " (" + rollableStat.Name + ")" : ""));
+                string bonusSymbol = bonus > 0 ? "+" : "";
+                resultMsg = $"rolled : {resultDice.ResultText} {rollableStat.Name}{(bonus != 0 ? bonusSymbol + bonus: "" )}";
 
                 // test si le jet et une maladress
-                int failValue = GenericTools.CheckFailValue(this.Luck, this.Unluck, rollableStat.Value);
+                int failValue = AnimaDiceHelper.CheckFailValue(this.IsLucky, this.IsUnlucky, rollableStat.Value);
                 if (resultDice.DiceResults.Last() <= failValue)
                 {
                     // si oui lance le jet de maladress
@@ -123,10 +135,15 @@ namespace BotDiscord.RPG
                     resultDice = rollableStat.FailRoll(tempFail);
 
                     // et affiche le resultat de maladress
-                    resultMsg += string.Format("\nmaladress : {0}{1}",
+                    resultMsg += string.Format("\nmaladress : {0} {1}",
                     resultDice.ResultText,
-                    (!string.IsNullOrEmpty(rollableStat.Name) ? " (" + rollableStat.Name + ")" : ""));
+                    (!string.IsNullOrEmpty(rollableStat.Name) ? rollableStat.Name : ""));
                 }
+            }
+            else if(rollableStat is ResistanceStat)
+            {
+                string bonusSymbol = bonus > 0 ? "+" : "";
+                resultMsg = $"rolled : {resultDice.ResultText} {rollableStat.Name}{(bonus != 0 ? bonusSymbol + bonus : "")}";
             }
             else
             {
@@ -135,10 +152,10 @@ namespace BotDiscord.RPG
                     rollOutcome = "won";
                 else rollOutcome = "failed";
 
-                resultMsg = string.Format("rolled : {0} against {1}{2}, {3} by {4}",
+                resultMsg = string.Format("rolled : {0} against {1} {2}, {3} by {4}",
                     resultDice.DiceResults.First(),
                     rollableStat.Value + bonus,
-                    (!string.IsNullOrEmpty(rollableStat.Name) ? " (" + rollableStat.Name + ")" : ""),
+                    (!string.IsNullOrEmpty(rollableStat.Name) ? rollableStat.Name : ""),
                     rollOutcome,
                     resultDice.DiceResults.First() - (rollableStat.Value + bonus));
             }
@@ -167,29 +184,35 @@ namespace BotDiscord.RPG
         #region Properties
 
         public string Player { get; set; }
+        public string ImageUrl { get; set; }
         public bool IsCurrent { get; set; }
         public string Name { get; set; }
         public string Origine { get; set; }
         public string Class { get; set; }
         public int Level { get; set; }
         public int Hp { get; set; }
+        public int CurrentHp { get; set; }
         public int Regeneration { get; set; }
-        public int Exhaust { get; set; }
+        public int Fatigue { get; set; }
+        public int CurrentFatigue { get; set; }
         public int Movement { get; set; }
         public int TotalKiPoints { get; set; }
+        public int CurrentKi { get; set; }
         public int ArmorPoint { get; set; }
         public int ZeonPoints { get; set; }
+        public int CurrentZeon { get; set; }
         public int Amr { get; set; }
         public int AmrRegen { get; set; }
         public int InnateMagic { get; set; }
         public int MagicLevel { get; set; }
         public int PppFree { get; set; }
-        public Boolean Luck { get; set; }
-        public Boolean Unluck { get; set; }
+        public int CurrentPpp { get; set; }
+        public Boolean IsLucky { get; set; }
+        public Boolean IsUnlucky { get; set; }
         public Boolean DestinFuneste { get; set; }
         public List<RollableStat> AllStats { get; set; } = new List<RollableStat>();
         public List<Roll10Stat> BaseStats { get; set; } = new List<Roll10Stat>();
-        public List<Roll100Stat> Resistances { get; set; } = new List<Roll100Stat>();
+        public List<ResistanceStat> Resistances { get; set; } = new List<ResistanceStat>();
         public List<Roll100Stat> BattleStats { get; set; } = new List<Roll100Stat>();
         public List<Roll100Stat> SecondaryStats { get; set; } = new List<Roll100Stat>();
         public Dictionary<string, List<DiceResult>> RollStatistics { get; set; } = new Dictionary<string, List<DiceResult>>();

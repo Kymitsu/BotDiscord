@@ -39,7 +39,7 @@ namespace BotDiscord.Modules
 
             for (int i = 0; i < number; i++)
             {
-                results.Add(GenericTools.SimpleRoll(size).Total);
+                results.Add(DiceHelper.SimpleRoll(size));
             }
             string msg = Context.User.Mention + $" ({expr}) : " + string.Join(" + ", results);
             if (values.Count() > 2)
@@ -75,6 +75,8 @@ namespace BotDiscord.Modules
             TimeSpan ellapsedTime = end - _sessionStart;
             await Context.Channel.SendMessageAsync($">>> **Fin de séance**\nDurée de la séance: {ellapsedTime.Hours}h {ellapsedTime.Minutes}m");
             _sessionStart = DateTime.MinValue;
+
+            AnimaCharacterRepository.SaveLoadedCharacter();
         }
 
         [Command("!session stats")]
@@ -110,7 +112,7 @@ namespace BotDiscord.Modules
             await Context.Message.DeleteAsync();
             await Context.Channel.SendMessageAsync(Context.User.Mention 
                 + " rolled : " 
-                + GenericTools.AnimaRoll(false,num).ResultText 
+                + AnimaDiceHelper.AnimaRoll(false, num).ResultText 
                 + (!string.IsNullOrEmpty(desc.Trim())? " (" + desc + ")":"")
                 );
         }
@@ -119,7 +121,7 @@ namespace BotDiscord.Modules
         public async Task Roll([Summary("Taille du Dé")]int dieSize, [Summary("Bonus à ajouter")]int bonus = 0)
         {
             await Context.Message.DeleteAsync();
-            await Context.Channel.SendMessageAsync(Context.User.Mention + " rolled : " + GenericTools.SimpleRoll(dieSize, bonus).ResultText);
+            await Context.Channel.SendMessageAsync(Context.User.Mention + " rolled : " + DiceHelper.SimpleRoll(dieSize, bonus).ResultText);
         }
 
         [Command("!me"), Summary("Pour t'aider dans ton RP parce qu'un autre joueur parle trop")]
@@ -150,16 +152,19 @@ namespace BotDiscord.Modules
             string helpLine = "```";
             foreach (var module in _commandService.Modules)
             {
-                string moduleName = module.Name;
-                moduleName += moduleName != string.Empty ? " " : string.Empty;
-                foreach (var command in module.Commands)
+                if (module.Name != "AudioModule")
                 {
-                    helpLine += string.Format("{2}{0} \t {1} : Ex => {2}{0} ", command.Name, command.Summary, moduleName);
-                    foreach (var parameter in command.Parameters)
+                    string moduleName = module.Name;
+                    moduleName += moduleName != string.Empty ? " " : string.Empty;
+                    foreach (var command in module.Commands)
                     {
-                        helpLine += "[" + parameter.Summary + "] ";
-                    }
-                    helpLine += "\n";
+                        helpLine += string.Format("{2}{0} \t {1} : Ex => {2}{0} ", command.Name, command.Summary, moduleName);
+                        foreach (var parameter in command.Parameters)
+                        {
+                            helpLine += "[" + parameter.Summary + "] ";
+                        }
+                        helpLine += "\n";
+                    } 
                 }
             }
             helpLine += "```";

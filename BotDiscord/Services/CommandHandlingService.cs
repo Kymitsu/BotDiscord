@@ -36,10 +36,10 @@ namespace BotDiscord.Services
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
             // Add additional initialization code here...
 
-            EmotesAction.Add(new Emoji("🏃‍♂️"), "initiative");
-            EmotesAction.Add(new Emoji("⚔️"), "attaque");
-            EmotesAction.Add(new Emoji("🛡️"), "défense");
-            EmotesAction.Add(new Emoji("👀"), "observation");
+            EmotesAction.Add(new Emoji("🏃‍♂️"), "Initiative");
+            EmotesAction.Add(new Emoji("⚔️"), "Attaque");
+            EmotesAction.Add(new Emoji("🛡️"), "Défense");
+            EmotesAction.Add(new Emoji("👀"), "Observation");
         }
 
         private async Task MessageReceived(SocketMessage rawMessage)
@@ -77,7 +77,7 @@ namespace BotDiscord.Services
 
                 await channel.SendMessageAsync(string.Format("{0} {1}",
                     reaction.User.Value.Mention,
-                    character.Roll(EmotesAction[reaction.Emote], 0)));
+                    character.Roll(EmotesAction[reaction.Emote].ToLower(), 0)));
             }
         }
 

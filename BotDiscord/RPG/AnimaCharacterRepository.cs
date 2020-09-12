@@ -54,6 +54,29 @@ namespace BotDiscord.RPG
             string extension = ".xlsx";
             package.SaveAs(new FileInfo(savePath + @"\" + fileName + "_" + characterName + extension));
         }
+
+        public static void SaveLoadedCharacter()
+        {
+            foreach (var character in animaCharacters.Where(x => x.IsCurrent))
+            {
+                string fileName = $"{character.Player.Replace("<", "").Replace(">", "")}_{character.Name}.xlsx";
+                FileInfo file = new FileInfo($"{Directory.GetCurrentDirectory()}\\{fileName}");
+                using (ExcelPackage package = new ExcelPackage(file))
+                {
+                    ExcelWorkbook workbook = package.Workbook;
+                    ExcelWorksheet worksheet = workbook.Worksheets["Feuille de personnage"];
+                    worksheet.Cells["B13"].Value = character.CurrentHp;
+                    worksheet.Cells["B19"].Value = character.CurrentFatigue;
+                    worksheet.Cells["U16"].Value = character.CurrentZeon;
+                    worksheet.Cells["Q22"].Value = character.CurrentPpp;
+                    worksheet.Cells["Z39"].Value = character.CurrentKi;
+                    worksheet.Cells["AK1"].Value = character.ImageUrl;
+
+                    package.Save();
+                }
+
+            }
+        }
         
         public static void DeleteExcelCharacter()
         {
