@@ -149,11 +149,12 @@ namespace BotDiscord.Modules
             embed.Author.Name = character.Name;
             embed.ThumbnailUrl = character.ImageUrl;
 
-            embed.AddField("Hp", $"{character.CurrentHp}/{character.Hp}");
-            embed.AddField("Fatigue", $"{character.CurrentFatigue}/{character.Fatigue}");
-            embed.AddField("Zéons", $"{character.CurrentZeon}/{character.ZeonPoints}");
-            embed.AddField("Ppp libres", $"{character.CurrentPpp}/{character.PppFree}");
+            embed.AddInlineField("Hp", $"{character.CurrentHp}/{character.Hp}");
+            embed.AddInlineField("Fatigue", $"{character.CurrentFatigue}/{character.Fatigue}");
             embed.AddField("Points de Ki", $"{character.CurrentKi}/{character.TotalKiPoints}");
+            embed.AddInlineField("Zéon", $"{character.CurrentZeon}/{character.ZeonPoints}");
+            embed.AddInlineField("Ppp libres", $"{character.CurrentPpp}/{character.PppFree}");
+            
 
             var msg = await Context.Channel.SendMessageAsync("", false, embed);
         }
