@@ -15,9 +15,11 @@ namespace BotDiscord.Modules
     public class AudioModule : ModuleBase<ICommandContext>
     {
         private readonly AudioService _service;
+        private CommandService _commandService;
 
-        public AudioModule(AudioService service)
+        public AudioModule(CommandService commandService, AudioService service)
         {
+            _commandService = commandService;
             _service = service;
         }
 
@@ -92,6 +94,7 @@ namespace BotDiscord.Modules
         }
 
         [Command("$volume", RunMode = RunMode.Async)]
+        [Alias("$vol")]
         public async Task VolumeCmd(string volstr)
         {
             await Context.Message.DeleteAsync();
@@ -207,6 +210,32 @@ namespace BotDiscord.Modules
                     await Context.Channel.SendMessageAsync("File uploaded successfully");
                 }
             }
+        }
+
+        [Command("$help"), Summary("Liste de toutes les commandes audio")]
+        public async Task Help()
+        {
+            await Context.Message.DeleteAsync();
+            string helpLine = "```";
+            foreach (var module in _commandService.Modules)
+            {
+                if (module.Name == "AudioModule")
+                {
+                    string moduleName = module.Name;
+                    moduleName += moduleName != string.Empty ? " " : string.Empty;
+                    foreach (var command in module.Commands)
+                    {
+                        helpLine += string.Format("{2}{0} \t {1} : Ex => {2}{0} ", command.Name, command.Summary, moduleName);
+                        foreach (var parameter in command.Parameters)
+                        {
+                            helpLine += "[" + parameter.Summary + "] ";
+                        }
+                        helpLine += "\n";
+                    }
+                }
+            }
+            helpLine += "```";
+            await Context.Channel.SendMessageAsync(helpLine);
         }
 
     }
