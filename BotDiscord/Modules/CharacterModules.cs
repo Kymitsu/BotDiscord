@@ -124,6 +124,7 @@ namespace BotDiscord.Modules
             {
                 var url = Context.Message.Attachments.First().Url;
                 character.ImageUrl = url;
+                await Context.Channel.SendMessageAsync($"{Context.Message.Author.Mention} Image updated!");
             }
             else
             {
@@ -253,8 +254,8 @@ namespace BotDiscord.Modules
             _ = msg.DeleteAsync();
         }
 
-        [Command("Ki")]
-        [Alias("ki")]
+        [Command("ki")]
+        [Alias("Ki")]
         public async Task SetKi(string s)
         {
             AnimaCharacter character = AnimaCharacterRepository.FindCurrentByMention(Context.Message.Author.Mention);
