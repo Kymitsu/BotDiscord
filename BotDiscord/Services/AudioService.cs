@@ -28,6 +28,7 @@ namespace BotDiscord.Services
         public bool IsBotPlaying { get; set; } = false;
         public bool IsBotPaused { get { return pauseToken.IsPaused; } }
         public string CurrentAudio { get; private set; }
+        public bool IsLooping { get; set; } = false;
 
         public async Task JoinAudio(IGuild guild, IVoiceChannel target)
         {
@@ -75,9 +76,8 @@ namespace BotDiscord.Services
                 IsBotPlaying = true;
                 while (Playlist.Count > 0 && !cancellationToken.IsCancellationRequested)
                 {
-                    CurrentAudio = Playlist.Dequeue();
+                    CurrentAudio = IsLooping ? Playlist.Peek() : Playlist.Dequeue();
                     string path = $"{Directory.GetCurrentDirectory()}\\Sounds\\{CurrentAudio}";
-                    // Your task: Get a full path to the file if the value of 'path' is only a filename.
                     if (!File.Exists(path))
                     {
                         IsBotPlaying = false;
@@ -141,7 +141,7 @@ namespace BotDiscord.Services
                         {
                             await stream.FlushAsync();
                         }
-                    } 
+                    }
                 }
                 IsBotPlaying = false;
                 cancellationToken = new CancellationTokenSource();
@@ -150,6 +150,7 @@ namespace BotDiscord.Services
 
         public async Task StopAudioAsync()
         {
+            Playlist.Clear();
             cancellationToken.Cancel();
         }
 
@@ -160,6 +161,7 @@ namespace BotDiscord.Services
 
         public async Task SkipAudioAsync()
         {
+            if (IsLooping) Playlist.Dequeue();
             skipAudio = true;
         }
 

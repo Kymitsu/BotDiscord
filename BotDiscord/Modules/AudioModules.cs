@@ -25,23 +25,30 @@ namespace BotDiscord.Modules
 
         // You *MUST* mark these commands with 'RunMode.Async'
         // otherwise the bot will not respond until the Task times out.
-        [Command("$join", RunMode = RunMode.Async)]
+        [Command("♪join", RunMode = RunMode.Async)]
+        [Alias("$join")]
         public async Task JoinCmd()
         {
             await Context.Message.DeleteAsync();
             await _service.JoinAudio(Context.Guild, (Context.User as IVoiceState).VoiceChannel);
         }
 
-        [Command("$leave", RunMode = RunMode.Async)]
+        [Command("♪leave", RunMode = RunMode.Async)]
+        [Alias("$leave")]
         public async Task LeaveCmd()
         {
             await Context.Message.DeleteAsync();
             await _service.LeaveAudio(Context.Guild);
         }
 
-        [Command("$play", RunMode = RunMode.Async)]
-        public async Task PlayCmd([Remainder] string file)
+        [Command("♪play", RunMode = RunMode.Async)]
+        [Alias("$play")]
+        public async Task PlayCmd(params string[] s)
         {
+            string file = s[0];
+            if (s.Length == 2 && s[1] == "loop")
+                _service.IsLooping = true;
+
             await Context.Message.DeleteAsync();
             if (!_service.IsBotPlaying)
             {
@@ -50,13 +57,28 @@ namespace BotDiscord.Modules
             }
             else
             {
-                await _service.AddToPlaylist(file);
-                await Context.Channel.SendMessageAsync($"{file} added to playlist. {_service.Playlist.Count} audio in playlist.");
+                await _service.StopAudioAsync();
+                await Task.Delay(500);
+                await _service.SendAudioAsync(Context.Guild, Context.Channel, file);
+                //await _service.AddToPlaylist(file);
+                //await Context.Channel.SendMessageAsync($"{file} added to playlist. {_service.Playlist.Count} audio in playlist.");
             }
             
         }
 
-        [Command("$add", RunMode = RunMode.Async)]
+        [Command("♪loop", RunMode = RunMode.Async)]
+        [Alias("$loop")]
+        public async Task LoopCmd()
+        {
+            _service.IsLooping = !_service.IsLooping;
+            if (_service.IsLooping)
+                await Context.Channel.SendMessageAsync("Looping current audio");
+            else
+                await Context.Channel.SendMessageAsync("Stopped looping current audio");
+        }
+
+        [Command("♪add", RunMode = RunMode.Async)]
+        [Alias("$add")]
         public async Task AddCmd([Remainder]string file)
         {
             await Context.Message.DeleteAsync();
@@ -64,7 +86,8 @@ namespace BotDiscord.Modules
             await Context.Channel.SendMessageAsync($"{file} added to playlist. {_service.Playlist.Count} audio in playlist.");
         }
 
-        [Command("$next", RunMode = RunMode.Async)]
+        [Command("♪next", RunMode = RunMode.Async)]
+        [Alias("$next")]
         public async Task NextCmd()
         {
             await Context.Message.DeleteAsync();
@@ -78,13 +101,14 @@ namespace BotDiscord.Modules
             }
         }
 
-        [Command("$skip", RunMode = RunMode.Async)]
+        [Command("♪skip", RunMode = RunMode.Async)]
+        [Alias("$skip")]
         public async Task SkipCmd()
         {
             await Context.Message.DeleteAsync();
             if (_service.IsBotPlaying)
             {
-                _service.SkipAudioAsync();
+                _ = _service.SkipAudioAsync();
                 await Context.Channel.SendMessageAsync($"{_service.CurrentAudio} Skipped"); 
             }
             else
@@ -93,8 +117,8 @@ namespace BotDiscord.Modules
             }
         }
 
-        [Command("$volume", RunMode = RunMode.Async)]
-        [Alias("$vol")]
+        [Command("♪volume", RunMode = RunMode.Async)]
+        [Alias("♪vol", "$volume", "$vol")]
         public async Task VolumeCmd(string volstr)
         {
             await Context.Message.DeleteAsync();
@@ -122,7 +146,8 @@ namespace BotDiscord.Modules
             }
         }
 
-        [Command("$mute", RunMode = RunMode.Async)]
+        [Command("♪mute", RunMode = RunMode.Async)]
+        [Alias("$mute")]
         public async Task MuteCmd()
         {
             await Context.Message.DeleteAsync();
@@ -145,7 +170,8 @@ namespace BotDiscord.Modules
         }
 
 
-        [Command("$stop", RunMode = RunMode.Async)]
+        [Command("♪stop", RunMode = RunMode.Async)]
+        [Alias("$stop")]
         public async Task StopCmd()
         {
             await Context.Message.DeleteAsync();
@@ -160,7 +186,8 @@ namespace BotDiscord.Modules
             }
         }
 
-        [Command("$pause", RunMode = RunMode.Async)]
+        [Command("♪pause", RunMode = RunMode.Async)]
+        [Alias("$pause")]
         public async Task PauseCmd()
         {
             await Context.Message.DeleteAsync();
@@ -178,7 +205,8 @@ namespace BotDiscord.Modules
             }
         }
 
-        [Command("$upload", RunMode = RunMode.Async)]
+        [Command("♪upload", RunMode = RunMode.Async)]
+        [Alias("$upload")]
         public async Task UploadCmd()
         {
             if (Context.Message.Attachments.Any())
@@ -212,7 +240,8 @@ namespace BotDiscord.Modules
             }
         }
 
-        [Command("$help"), Summary("Liste de toutes les commandes audio")]
+        [Command("♪help"), Summary("Liste de toutes les commandes audio")]
+        [Alias("$help")]
         public async Task Help()
         {
             await Context.Message.DeleteAsync();
