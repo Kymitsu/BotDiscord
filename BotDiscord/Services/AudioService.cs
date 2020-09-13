@@ -80,6 +80,7 @@ namespace BotDiscord.Services
                     // Your task: Get a full path to the file if the value of 'path' is only a filename.
                     if (!File.Exists(path))
                     {
+                        IsBotPlaying = false;
                         await channel.SendMessageAsync("File does not exist.");
                         return;
                     }
