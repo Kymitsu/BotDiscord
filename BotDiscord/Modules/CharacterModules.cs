@@ -156,8 +156,7 @@ namespace BotDiscord.Modules
             embed.AddInlineField("Zéon", $"{character.CurrentZeon}/{character.ZeonPoints}");
             embed.AddInlineField("Ppp libres", $"{character.CurrentPpp}/{character.PppFree}");
             
-
-            var msg = await Context.Channel.SendMessageAsync("", false, embed);
+            await Context.User.SendMessageAsync("", false, embed);
         }
 
         [Command("reset")]
