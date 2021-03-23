@@ -5,9 +5,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace BotDiscord.RPG
+namespace BotDiscord.RPG.Anima
 {
-    public class AnimaCharacter
+    public class AnimaCharacter : PlayableCharacter
     {
         public static List<string> StatGroups = new List<string>() { "Caractéristique", "Résistance", "Champs principal", "Champs secondaire" };
        
@@ -135,7 +135,8 @@ namespace BotDiscord.RPG
                     resultDice = rollableStat.FailRoll(tempFail);
 
                     // et affiche le resultat de maladress
-                    resultMsg += string.Format("\nmaladress : {0} {1}",
+                    resultMsg += Environment.NewLine;
+                    resultMsg += string.Format("maladress : {0} {1}",
                     resultDice.ResultText,
                     (!string.IsNullOrEmpty(rollableStat.Name) ? rollableStat.Name : ""));
                 }
@@ -182,11 +183,6 @@ namespace BotDiscord.RPG
         }
 
         #region Properties
-
-        public string Player { get; set; }
-        public string ImageUrl { get; set; }
-        public bool IsCurrent { get; set; }
-        public string Name { get; set; }
         public string Origine { get; set; }
         public string Class { get; set; }
         public int Level { get; set; }

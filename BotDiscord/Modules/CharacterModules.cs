@@ -1,4 +1,5 @@
 ﻿using BotDiscord.RPG;
+using BotDiscord.RPG.Anima;
 using BotDiscord.Services;
 using Discord;
 using Discord.Commands;
@@ -21,7 +22,7 @@ namespace BotDiscord.Modules
             string msg = "";
             foreach (var character in AnimaCharacterRepository.animaCharacters)
             {
-                msg += character.Name + "\n";
+                msg += character.Name + Environment.NewLine;
             }
             await Context.Message.DeleteAsync();
             await Context.Channel.SendMessageAsync(msg);
@@ -38,7 +39,7 @@ namespace BotDiscord.Modules
                 }
                 catch (Exception ex)
                 {
-                    await Context.Channel.SendMessageAsync($"Could not download file.\n{ex.Message}");
+                    await Context.Channel.SendMessageAsync($"Could not download file.{Environment.NewLine}{ex.Message}");
                 }
             }
             else
@@ -50,7 +51,7 @@ namespace BotDiscord.Modules
         [Command("new"), Summary("Lance les dés pour un nouveau perso. Caractéristique la plus basse n'est pas modifiée.")]
         public async Task New([Summary("Relance pour les valeurs inférieures ou égales")]int rerollVal = 0)
         {
-            string msg = $"{Context.Message.Author.Mention}\n```Caractéristiques : ";
+            string msg = $"{Context.Message.Author.Mention}{Environment.NewLine}```Caractéristiques : ";
             List<int> caract = new List<int>();
             for (int i = 0; i < 8; i++)
             {
@@ -58,7 +59,7 @@ namespace BotDiscord.Modules
             }
             caract.Sort();
             msg += string.Join(" | ", caract);
-            msg += $"\nApparence : {AnimaDiceHelper.CaractRoll(0)}";
+            msg += $"{Environment.NewLine}Apparence : {AnimaDiceHelper.CaractRoll(0)}";
             msg += "```";
             await Context.Message.DeleteAsync();
             await Context.Channel.SendMessageAsync(msg);
@@ -74,12 +75,12 @@ namespace BotDiscord.Modules
                 var characters = AnimaCharacterRepository.animaCharacters.Where(x => x.Player == Context.Message.Author.Mention);
                 foreach (AnimaCharacter character in characters)
                 {
-                    characterString += character.Name + " - LVL " + character.Level + (character.IsCurrent ? " (loaded)" : "") + "\n";
+                    characterString += character.Name + " - LVL " + character.Level + (character.IsCurrent ? " (loaded)" : "") + Environment.NewLine;
                 }
                 characterString += "```";
 
                 await Context.Message.DeleteAsync();
-                await Context.Channel.SendMessageAsync("List of playable characters :\n" + characterString);
+                await Context.Channel.SendMessageAsync("List of playable characters :" + Environment.NewLine + characterString);
             }
             else
             {
@@ -145,18 +146,29 @@ namespace BotDiscord.Modules
             }
 
             _ = Context.Message.DeleteAsync();
-            var embed = new EmbedBuilder();
-            embed.Author = new EmbedAuthorBuilder();
-            embed.Author.Name = character.Name;
-            embed.ThumbnailUrl = character.ImageUrl;
+            var embed = new EmbedBuilder
+            {
+                Title = "Status"
+            };
+            embed.WithAuthor(character.Name)
+                .WithThumbnailUrl(character.ImageUrl)
+                .AddField("Hp", $"{character.CurrentHp}/{character.Hp}")
+                .AddField("Fatigue", $"{character.CurrentFatigue}/{character.Fatigue}")
+                .AddField("Points de Ki", $"{character.CurrentKi}/{character.TotalKiPoints}")
+                .AddField("Zéon", $"{character.CurrentZeon}/{character.ZeonPoints}")
+                .AddField("Ppp libres", $"{character.CurrentPpp}/{character.PppFree}");
 
-            embed.AddInlineField("Hp", $"{character.CurrentHp}/{character.Hp}");
-            embed.AddInlineField("Fatigue", $"{character.CurrentFatigue}/{character.Fatigue}");
-            embed.AddField("Points de Ki", $"{character.CurrentKi}/{character.TotalKiPoints}");
-            embed.AddInlineField("Zéon", $"{character.CurrentZeon}/{character.ZeonPoints}");
-            embed.AddInlineField("Ppp libres", $"{character.CurrentPpp}/{character.PppFree}");
+
+            //embed.Author = new EmbedAuthorBuilder();
+            //embed.Author.Name = character.Name;
+            //embed.ThumbnailUrl = character.ImageUrl;
+            //embed.AddInlineField("Hp", $"{character.CurrentHp}/{character.Hp}");
+            //embed.AddInlineField("Fatigue", $"{character.CurrentFatigue}/{character.Fatigue}");
+            //embed.AddField("Points de Ki", $"{character.CurrentKi}/{character.TotalKiPoints}");
+            //embed.AddInlineField("Zéon", $"{character.CurrentZeon}/{character.ZeonPoints}");
+            //embed.AddInlineField("Ppp libres", $"{character.CurrentPpp}/{character.PppFree}");
             
-            await Context.User.SendMessageAsync("", false, embed);
+            await Context.User.SendMessageAsync("", false, embed.Build());
         }
 
         [Command("reset")]
@@ -352,7 +364,7 @@ namespace BotDiscord.Modules
             }
             embed.Description = sb.ToString();
 
-            var msg = await Context.Channel.SendMessageAsync("", false, embed);
+            var msg = await Context.Channel.SendMessageAsync("", false, embed.Build());
 
             CommandHandlingService.ReactionMessages.Add(msg.Id);
 
@@ -369,13 +381,13 @@ namespace BotDiscord.Modules
             string helpText = "";
             foreach (string group in AnimaCharacter.StatGroups)
             {
-                helpText += group + " :";
-                helpText += "\n```";
+                helpText += group + " :" + Environment.NewLine;
+                helpText += "```";
                 helpText += string.Join(", ", character.AllStats.Where(x => x.Group == group).Select(x => x.Name));
-                helpText += "```\n";
+                helpText += "```" + Environment.NewLine;
             }
             
-            return string.Format("Available keywords for !c info/r :\n{0}", helpText);
+            return $"Available keywords for !c info/r :{Environment.NewLine}{helpText}";
         }
     }
 }

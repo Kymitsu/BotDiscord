@@ -67,7 +67,6 @@ namespace BotDiscord.Services
 
         public async Task SendAudioAsync(IGuild guild, IMessageChannel channel, string file)
         {
-            //string path = $"{Directory.GetCurrentDirectory()}\\Sounds\\{file}";
             Playlist.Enqueue(file);
             
             IAudioClient client;
@@ -77,7 +76,7 @@ namespace BotDiscord.Services
                 while (Playlist.Count > 0 && !cancellationToken.IsCancellationRequested)
                 {
                     CurrentAudio = IsLooping ? Playlist.Peek() : Playlist.Dequeue();
-                    string path = $"{Directory.GetCurrentDirectory()}\\Sounds\\{CurrentAudio}";
+                    string path = $"{Directory.GetCurrentDirectory()}{Path.PathSeparator}Sounds{Path.PathSeparator}{CurrentAudio}";
                     if (!File.Exists(path))
                     {
                         IsBotPlaying = false;

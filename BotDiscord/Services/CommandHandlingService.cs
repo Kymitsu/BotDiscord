@@ -7,6 +7,7 @@ using Discord.WebSocket;
 using System.Linq;
 using System.Collections.Generic;
 using BotDiscord.RPG;
+using BotDiscord.RPG.Anima;
 
 namespace BotDiscord.Services
 {
@@ -33,7 +34,8 @@ namespace BotDiscord.Services
         public async Task InitializeAsync(IServiceProvider provider)
         {
             _provider = provider;
-            await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
+            //await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
+            await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), provider);
             // Add additional initialization code here...
 
             EmotesAction.Add(new Emoji("🏃‍♂️"), "Initiative");

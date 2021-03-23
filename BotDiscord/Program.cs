@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 using BotDiscord.RPG;
+using BotDiscord.RPG.Anima;
 
 namespace BotDiscord
 {

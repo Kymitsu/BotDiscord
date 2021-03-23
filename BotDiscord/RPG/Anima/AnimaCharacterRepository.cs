@@ -8,7 +8,7 @@ using System.Linq;
 using System.Diagnostics;
 using System.Globalization;
 
-namespace BotDiscord.RPG
+namespace BotDiscord.RPG.Anima
 {
     public static class AnimaCharacterRepository
     {
@@ -52,7 +52,7 @@ namespace BotDiscord.RPG
         {
             string fileName = mention.Replace("<", "").Replace(">", "");
             string extension = ".xlsx";
-            package.SaveAs(new FileInfo(savePath + @"\" + fileName + "_" + characterName + extension));
+            package.SaveAs(new FileInfo(savePath + Path.PathSeparator + fileName + "_" + characterName + extension));
         }
 
         public static void SaveLoadedCharacter()
@@ -60,7 +60,7 @@ namespace BotDiscord.RPG
             foreach (var character in animaCharacters.Where(x => x.IsCurrent))
             {
                 string fileName = $"{character.Player.Replace("<", "").Replace(">", "")}_{character.Name}.xlsx";
-                FileInfo file = new FileInfo($"{Directory.GetCurrentDirectory()}\\{fileName}");
+                FileInfo file = new FileInfo($"{Directory.GetCurrentDirectory()}{Path.PathSeparator}{fileName}");
                 using (ExcelPackage package = new ExcelPackage(file))
                 {
                     ExcelWorkbook workbook = package.Workbook;

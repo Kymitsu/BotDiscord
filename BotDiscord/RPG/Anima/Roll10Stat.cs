@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BotDiscord.RPG
+namespace BotDiscord.RPG.Anima
 {
     public class Roll10Stat : RollableStat
     {

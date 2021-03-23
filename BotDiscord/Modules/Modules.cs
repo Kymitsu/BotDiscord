@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Linq;
 using Discord;
 using BotDiscord.RPG;
+using BotDiscord.RPG.Anima;
 
 namespace BotDiscord.Modules
 {
@@ -73,7 +74,7 @@ namespace BotDiscord.Modules
             await Context.Message.DeleteAsync();
             DateTime end = DateTime.Now;
             TimeSpan ellapsedTime = end - _sessionStart;
-            await Context.Channel.SendMessageAsync($">>> **Fin de séance**\nDurée de la séance: {ellapsedTime.Hours}h {ellapsedTime.Minutes}m");
+            await Context.Channel.SendMessageAsync($">>> **Fin de séance**{Environment.NewLine}Durée de la séance: {ellapsedTime.Hours}h {ellapsedTime.Minutes}m");
             _sessionStart = DateTime.MinValue;
 
             AnimaCharacterRepository.SaveLoadedCharacter();
@@ -136,11 +137,11 @@ namespace BotDiscord.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task Purge([Summary("Nb de msg à suppr")]int amount)
         {
-            var messages = await this.Context.Channel.GetMessagesAsync((int)amount + 1).Flatten();
+            var messages = this.Context.Channel.GetMessagesAsync((int)amount + 1).Flatten();
+            _ = messages.ForEachAsync(x => this.Context.Channel.DeleteMessageAsync(x.Id));
 
-            await this.Context.Channel.DeleteMessagesAsync(messages);
             const int delay = 5000;
-            var m = await this.ReplyAsync($"Purge completed. _This message will be deleted in {delay / 1000} seconds._");
+            var m = await this.ReplyAsync($"Deleting messages... _This message will be deleted in {delay / 1000} seconds._");
             await Task.Delay(delay);
             await m.DeleteAsync();
         }
@@ -163,7 +164,7 @@ namespace BotDiscord.Modules
                         {
                             helpLine += "[" + parameter.Summary + "] ";
                         }
-                        helpLine += "\n";
+                        helpLine += Environment.NewLine;
                     } 
                 }
             }

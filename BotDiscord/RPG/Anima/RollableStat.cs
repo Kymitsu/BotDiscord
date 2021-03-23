@@ -6,7 +6,7 @@ using System.Xml;
 using System.Reflection;
 using System.Linq;
 
-namespace BotDiscord.RPG
+namespace BotDiscord.RPG.Anima
 {
     public abstract class RollableStat
     {

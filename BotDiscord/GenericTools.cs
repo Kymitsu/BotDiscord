@@ -8,6 +8,7 @@ using System.Net.Http;
 using OfficeOpenXml;
 using BotDiscord.RPG;
 using System.Linq;
+using BotDiscord.RPG.Anima;
 
 namespace BotDiscord
 {
