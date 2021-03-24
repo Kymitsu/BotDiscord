@@ -59,12 +59,12 @@ namespace BotDiscord.Modules
             if (_sessionStart == DateTime.MinValue)
             {
                 _sessionStart = DateTime.Now;
-                await Context.Channel.SendMessageAsync("> **Début de séance**"); 
+                await Context.Channel.SendMessageAsync($"> **Début de séance**"); 
             }
             else
             {
                 TimeSpan ellapsedTime = DateTime.Now - _sessionStart;
-                await Context.Channel.SendMessageAsync($"> Séance cours depuis {ellapsedTime.Hours}h {ellapsedTime.Minutes}m");
+                await Context.Channel.SendMessageAsync($"> Séance en cours depuis {ellapsedTime.Hours}h {ellapsedTime.Minutes}m");
             }
         }
 
@@ -165,7 +165,8 @@ namespace BotDiscord.Modules
                             helpLine += "[" + parameter.Summary + "] ";
                         }
                         helpLine += Environment.NewLine;
-                    } 
+                    }
+                    helpLine += Environment.NewLine;
                 }
             }
             helpLine += "```";

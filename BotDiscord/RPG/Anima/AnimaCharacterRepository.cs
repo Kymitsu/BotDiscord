@@ -52,7 +52,7 @@ namespace BotDiscord.RPG.Anima
         {
             string fileName = mention.Replace("<", "").Replace(">", "");
             string extension = ".xlsx";
-            package.SaveAs(new FileInfo(savePath + Path.PathSeparator + fileName + "_" + characterName + extension));
+            package.SaveAs(new FileInfo(savePath + Path.DirectorySeparatorChar + fileName + "_" + characterName + extension));
         }
 
         public static void SaveLoadedCharacter()
@@ -60,7 +60,7 @@ namespace BotDiscord.RPG.Anima
             foreach (var character in animaCharacters.Where(x => x.IsCurrent))
             {
                 string fileName = $"{character.Player.Replace("<", "").Replace(">", "")}_{character.Name}.xlsx";
-                FileInfo file = new FileInfo($"{Directory.GetCurrentDirectory()}{Path.PathSeparator}{fileName}");
+                FileInfo file = new FileInfo($"{Directory.GetCurrentDirectory()}{Path.DirectorySeparatorChar}{fileName}");
                 using (ExcelPackage package = new ExcelPackage(file))
                 {
                     ExcelWorkbook workbook = package.Workbook;

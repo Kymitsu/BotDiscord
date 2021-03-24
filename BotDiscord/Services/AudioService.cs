@@ -76,7 +76,7 @@ namespace BotDiscord.Services
                 while (Playlist.Count > 0 && !cancellationToken.IsCancellationRequested)
                 {
                     CurrentAudio = IsLooping ? Playlist.Peek() : Playlist.Dequeue();
-                    string path = $"{Directory.GetCurrentDirectory()}{Path.PathSeparator}Sounds{Path.PathSeparator}{CurrentAudio}";
+                    string path = $"{Directory.GetCurrentDirectory()}{Path.DirectorySeparatorChar}Sounds{Path.DirectorySeparatorChar}{CurrentAudio}";
                     if (!File.Exists(path))
                     {
                         IsBotPlaying = false;

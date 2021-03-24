@@ -231,7 +231,7 @@ namespace BotDiscord.Modules
                         }
                     }
 
-                    FileStream fs = File.Create($"{Directory.GetCurrentDirectory()}{Path.PathSeparator}Sounds{Path.PathSeparator}{attachment.Filename}");
+                    FileStream fs = File.Create($"{Directory.GetCurrentDirectory()}{Path.DirectorySeparatorChar}Sounds{Path.DirectorySeparatorChar}{attachment.Filename}");
                     stream.CopyTo(fs);
 
                     await Context.Message.DeleteAsync();
