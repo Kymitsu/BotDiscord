@@ -107,17 +107,6 @@ namespace BotDiscord.Modules
 
         }
 
-        [Command("!ar"), Summary("Lance un Dé 100 avec jet ouvert")]
-        public async Task AnimaRoll([Summary("Bonus à ajouter")]int num = 0, [Summary("Decription du lancé")]string desc = "")
-        {
-            await Context.Message.DeleteAsync();
-            await Context.Channel.SendMessageAsync(Context.User.Mention 
-                + " rolled : " 
-                + AnimaDiceHelper.AnimaRoll(false, num).ResultText 
-                + (!string.IsNullOrEmpty(desc.Trim())? " (" + desc + ")":"")
-                );
-        }
-
         [Command("!r"), Summary("Lance un Dé")]
         public async Task Roll([Summary("Taille du Dé")]int dieSize, [Summary("Bonus à ajouter")]int bonus = 0)
         {

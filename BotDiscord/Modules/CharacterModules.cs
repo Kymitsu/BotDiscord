@@ -48,23 +48,6 @@ namespace BotDiscord.Modules
             }
         }
 
-        [Command("new"), Summary("Lance les dés pour un nouveau perso. Caractéristique la plus basse n'est pas modifiée.")]
-        public async Task New([Summary("Relance pour les valeurs inférieures ou égales")]int rerollVal = 0)
-        {
-            string msg = $"{Context.Message.Author.Mention}{Environment.NewLine}```Caractéristiques : ";
-            List<int> caract = new List<int>();
-            for (int i = 0; i < 8; i++)
-            {
-                caract.Add(AnimaDiceHelper.CaractRoll(rerollVal));
-            }
-            caract.Sort();
-            msg += string.Join(" | ", caract);
-            msg += $"{Environment.NewLine}Apparence : {AnimaDiceHelper.CaractRoll(0)}";
-            msg += "```";
-            await Context.Message.DeleteAsync();
-            await Context.Channel.SendMessageAsync(msg);
-        }
-
         [Command("load"), Summary("Charge le personnage à jouer")]
         public async Task Load(params string[] s)
         {
