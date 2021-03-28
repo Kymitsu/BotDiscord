@@ -36,13 +36,13 @@ namespace BotDiscord.Modules
             for (int i = 0; i < whiteDiceNum; i++)
             {
                 int roll = DiceHelper.SimpleRoll(12);
-                whiteDiceResult += $"<:{L5RDiceHelper.WhiteDiceMapping[roll]}:{guildEmotes.First(x => x.Name == L5RDiceHelper.WhiteDiceMapping[roll]).Id}>";
+                whiteDiceResult += $"<:{L5RDiceHelper.WhiteDiceMapping[roll]}:{guildEmotes.FirstOrDefault(x => x.Name == L5RDiceHelper.WhiteDiceMapping[roll])?.Id}>";
             }
             string blackDiceResult = "";
             for (int i = 0; i < blackDiceNum; i++)
             {
                 int roll = DiceHelper.SimpleRoll(6);
-                blackDiceResult += $"<:{L5RDiceHelper.BlackDiceMapping[roll]}:{guildEmotes.First(x => x.Name == L5RDiceHelper.BlackDiceMapping[roll]).Id}>";
+                blackDiceResult += $"<:{L5RDiceHelper.BlackDiceMapping[roll]}:{guildEmotes.FirstOrDefault(x => x.Name == L5RDiceHelper.BlackDiceMapping[roll])?.Id}>";
             }
 
             MessageReference msgRef = new MessageReference(Context.Message.Id);
