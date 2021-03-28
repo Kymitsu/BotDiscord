@@ -15,21 +15,22 @@ namespace BotDiscord.Modules
     public class L5RModule : ModuleBase
     {
         [Command("!l")]
-        public async Task L5rRoll(string s)
+        public async Task L5rRoll(params string[] s)
         {
+            string expr = string.Concat(s);
             // 1b2n  2b  3n   2b1n
             int whiteDiceNum = 0;
             int blackDiceNum = 0;
 
             var guildEmotes = Context.Guild.Emotes;
 
-            int bIndex = s.IndexOf('b');
+            int bIndex = expr.IndexOf('b');
             if(bIndex != -1)
-                int.TryParse(s[bIndex - 1].ToString(), out whiteDiceNum);
+                int.TryParse(expr[bIndex - 1].ToString(), out whiteDiceNum);
 
-            int nIndex = s.IndexOf('n');
+            int nIndex = expr.IndexOf('n');
             if (nIndex != -1)
-                int.TryParse(s[nIndex - 1].ToString(), out blackDiceNum);
+                int.TryParse(expr[nIndex - 1].ToString(), out blackDiceNum);
 
             string whiteDiceResult = "";
             for (int i = 0; i < whiteDiceNum; i++)
