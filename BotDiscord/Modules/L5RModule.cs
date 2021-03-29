@@ -22,7 +22,7 @@ namespace BotDiscord.Modules
             int whiteDiceNum = 0;
             int blackDiceNum = 0;
 
-            var guildEmotes = Context.Guild.Emotes;
+            L5RDiceHelper.GuildEmotes = Context.Guild.Emotes;
 
             int bIndex = expr.IndexOf('b');
             if(bIndex != -1)
@@ -32,21 +32,69 @@ namespace BotDiscord.Modules
             if (nIndex != -1)
                 int.TryParse(expr[nIndex - 1].ToString(), out blackDiceNum);
 
-            string whiteDiceResult = "";
-            for (int i = 0; i < whiteDiceNum; i++)
+            MessageReference msgRef = new MessageReference(Context.Message.Id);
+            await Context.Channel.SendMessageAsync(L5RDiceHelper.Roll(whiteDiceNum, blackDiceNum), messageReference: msgRef);
+        }
+
+        [Command("!l r")]
+        [Priority(1)]
+        public async Task CharacterRoll(params string[] s)
+        {
+            L5RDiceHelper.GuildEmotes = Context.Guild.Emotes;
+
+            L5RCharacter character = CharacterRepository.FindCurrentByMention<L5RCharacter>(Context.Message.Author.Mention);
+            if (character == null)
             {
-                int roll = DiceHelper.SimpleRoll(12);
-                whiteDiceResult += $"<:{L5RDiceHelper.WhiteDiceMapping[roll]}:{guildEmotes.FirstOrDefault(x => x.Name == L5RDiceHelper.WhiteDiceMapping[roll])?.Id}>";
-            }
-            string blackDiceResult = "";
-            for (int i = 0; i < blackDiceNum; i++)
-            {
-                int roll = DiceHelper.SimpleRoll(6);
-                blackDiceResult += $"<:{L5RDiceHelper.BlackDiceMapping[roll]}:{guildEmotes.FirstOrDefault(x => x.Name == L5RDiceHelper.BlackDiceMapping[roll])?.Id}>";
+                await Context.Channel.SendMessageAsync("Error 404: Character not found or not loaded!");
+                return;
             }
 
-            MessageReference msgRef = new MessageReference(Context.Message.Id);
-            await Context.Channel.SendMessageAsync($"{whiteDiceResult}{blackDiceResult}", messageReference: msgRef);
+            string ring = "";
+            if (character.Rings.ContainsKey(s.Last()))
+                ring = s.Last();
+
+            string rawStat = string.Join(" ", s).ToLower();
+            if (!string.IsNullOrWhiteSpace(ring))
+            {
+                rawStat = rawStat.Replace($" {ring}", "");
+            }
+
+            if (rawStat == null || rawStat == string.Empty)
+            {
+                await Context.Message.DeleteAsync();
+                await Context.Channel.SendMessageAsync(character.KeywordsHelp());
+            }
+            else
+            {
+                MessageReference msgRef = new MessageReference(Context.Message.Id);
+                await Context.Channel.SendMessageAsync(character.Roll(rawStat, ring), messageReference: msgRef);
+            }
+        }
+
+        [Command("!l posture")]
+        [Alias("!l stance", "!l p")]
+        public async Task SetCharacterStance(string s)
+        {
+            _ = Context.Message.DeleteAsync();
+            L5RCharacter character = CharacterRepository.FindCurrentByMention<L5RCharacter>(Context.Message.Author.Mention);
+            if (character == null)
+            {
+                await Context.Channel.SendMessageAsync("Error 404: Character not found or not loaded!");
+                return;
+            }
+
+            try
+            {
+                character.SetCurrentStance(s);
+            }
+            catch (Exception ex)
+            {
+                await Context.Channel.SendMessageAsync($"{Context.User.Mention} {ex.Message}");
+            }
+
+            var msg = await Context.Channel.SendMessageAsync($"{Context.User.Mention} Posture modifiée!");
+            await Task.Delay(3000);
+            _ = msg.DeleteAsync();
         }
     }
 }

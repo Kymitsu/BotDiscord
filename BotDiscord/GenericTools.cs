@@ -9,12 +9,20 @@ using OfficeOpenXml;
 using BotDiscord.RPG;
 using System.Linq;
 using BotDiscord.RPG.Anima;
+using BotDiscord.RPG.L5R;
+using System.Threading.Tasks;
 
 namespace BotDiscord
 {
     public static class GenericTools
     {
-        public async static void HandleFile(IAttachment attachment, string mention)
+
+        public static T FindByRawStat<T>(this List<T> list, string rawStat) where T : RollableStat
+        {
+            return list.First(x => x.Name.ToLower() == rawStat.ToLower() || x.Aliases.Any(y => y.ToLower() == rawStat.ToLower()));
+        }
+
+        public async static Task HandleFile(IAttachment attachment, string mention)
         {
             if (Path.GetExtension(attachment.Filename) != ".xlsx") return;
 
@@ -40,22 +48,31 @@ namespace BotDiscord
                 stream.CopyTo(memoryStream);
                 using (ExcelPackage package = new ExcelPackage(memoryStream))
                 {
+                    PlayableCharacter character = null;
                     ExcelWorkbook workbook = package.Workbook;
                     ExcelWorksheet worksheet = workbook.Worksheets["Feuille de personnage"];
-                    AnimaCharacter animaCharacter = new AnimaCharacter(worksheet, mention);
+                    if(worksheet != null)//Fiche de perso anima
+                    {
+                        character = new AnimaCharacter(worksheet, mention);
+                    }
+                    worksheet = workbook.Worksheets["Stat"];
+                    if(worksheet != null)//Fiche de perso L5R => peut encore changer
+                    {
+                        character = new L5RCharacter(worksheet, mention);
+                    }
 
-                    int charIndex = AnimaCharacterRepository.animaCharacters.FindIndex(x => x.Player == mention && x.Name == animaCharacter.Name);
+                    int charIndex = CharacterRepository.Characters.FindIndex(x => x.Player == mention && x.Name == character.Name);
 
                     if (charIndex == -1)
                     {
-                        AnimaCharacterRepository.animaCharacters.Add(animaCharacter); 
+                        CharacterRepository.Characters.Add(character); 
                     }
                     else
                     {
-                        AnimaCharacterRepository.animaCharacters[charIndex] = animaCharacter;
+                        CharacterRepository.Characters[charIndex] = character;
                     }
 
-                    AnimaCharacterRepository.SaveExcelCharacter(package, mention, animaCharacter.Name);
+                    CharacterRepository.SaveExcelCharacter(package, mention, character.Name);
                 }
             }
 

@@ -6,7 +6,7 @@ using System.Xml;
 using System.Reflection;
 using System.Linq;
 
-namespace BotDiscord.RPG.Anima
+namespace BotDiscord.RPG
 {
     public abstract class RollableStat
     {
@@ -43,9 +43,6 @@ namespace BotDiscord.RPG.Anima
                 } 
             }
         }
-
-        public abstract DiceResult Roll(int temporaryBonus,Boolean destinFuneste);
-        public abstract DiceResult FailRoll(int score);
 
         public override string ToString()
         {

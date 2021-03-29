@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Discord;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace BotDiscord.RPG.L5R
@@ -8,7 +10,7 @@ namespace BotDiscord.RPG.L5R
     {
         public static Dictionary<int, string> WhiteDiceMapping { get; set; }
         public static Dictionary<int, string> BlackDiceMapping { get; set; }
-
+        public static IReadOnlyCollection<GuildEmote> GuildEmotes { get; set; }
 
         static L5RDiceHelper()
         {
@@ -33,6 +35,24 @@ namespace BotDiscord.RPG.L5R
             BlackDiceMapping.Add(4, "noir_4");
             BlackDiceMapping.Add(5, "noir_5");
             BlackDiceMapping.Add(6, "noir_6");
+        }
+
+        public static string Roll(int whiteDiceNum, int blackDiceNum)
+        {
+            string whiteDiceResult = "";
+            for (int i = 0; i < whiteDiceNum; i++)
+            {
+                int roll = DiceHelper.SimpleRoll(12);
+                whiteDiceResult += $"<:{L5RDiceHelper.WhiteDiceMapping[roll]}:{GuildEmotes.FirstOrDefault(x => x.Name == L5RDiceHelper.WhiteDiceMapping[roll])?.Id}>";
+            }
+            string blackDiceResult = "";
+            for (int i = 0; i < blackDiceNum; i++)
+            {
+                int roll = DiceHelper.SimpleRoll(6);
+                blackDiceResult += $"<:{L5RDiceHelper.BlackDiceMapping[roll]}:{GuildEmotes.FirstOrDefault(x => x.Name == L5RDiceHelper.BlackDiceMapping[roll])?.Id}>";
+            }
+
+            return whiteDiceResult + blackDiceResult;
         }
     }
 }

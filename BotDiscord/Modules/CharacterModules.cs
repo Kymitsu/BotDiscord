@@ -1,5 +1,6 @@
 ﻿using BotDiscord.RPG;
 using BotDiscord.RPG.Anima;
+using BotDiscord.RPG.L5R;
 using BotDiscord.Services;
 using Discord;
 using Discord.Commands;
@@ -12,15 +13,15 @@ using System.Threading.Tasks;
 
 namespace BotDiscord.Modules
 {
-    [Group("!c")]
+    [Group("")]
     public class CharacterModules : ModuleBase
     {
-        [Command("list"), Summary("Admin uniquement")]
+        [Command("!c list"), Summary("Admin uniquement")]
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task List()
         {
             string msg = "";
-            foreach (var character in AnimaCharacterRepository.animaCharacters)
+            foreach (var character in CharacterRepository.Characters)
             {
                 msg += character.Name + Environment.NewLine;
             }
@@ -28,14 +29,14 @@ namespace BotDiscord.Modules
             await Context.Channel.SendMessageAsync(msg);
         }
 
-        [Command("upload"), Summary("Charge les données d'un personnage depuis sa feuille Excel")]
+        [Command("!c upload"), Summary("Charge les données d'un personnage depuis sa feuille Excel")]
         public async Task Upload()
         {
             if (Context.Message.Attachments.Any())
             {
                 try
                 {
-                    GenericTools.HandleFile(Context.Message.Attachments.First(), Context.Message.Author.Mention);
+                    await GenericTools.HandleFile(Context.Message.Attachments.First(), Context.Message.Author.Mention);
                 }
                 catch (Exception ex)
                 {
@@ -48,17 +49,32 @@ namespace BotDiscord.Modules
             }
         }
 
-        [Command("load"), Summary("Charge le personnage à jouer")]
+        [Command("!c load"), Summary("Charge le personnage à jouer")]
         public async Task Load(params string[] s)
         {
             string name = string.Join(" ", s);
             if (string.IsNullOrEmpty(name))
             {
-                var characterString = "```";
-                var characters = AnimaCharacterRepository.animaCharacters.Where(x => x.Player == Context.Message.Author.Mention);
-                foreach (AnimaCharacter character in characters)
+                var characterString = "```yaml" + Environment.NewLine;
+
+                var animaChars = CharacterRepository.Characters.OfType<AnimaCharacter>().Where(x => x.Player == Context.Message.Author.Mention);
+                if (animaChars.Any())
                 {
-                    characterString += character.Name + " - LVL " + character.Level + (character.IsCurrent ? " (loaded)" : "") + Environment.NewLine;
+                    characterString += "Anima:" + Environment.NewLine;
+                    foreach (AnimaCharacter character in animaChars)
+                    {
+                        characterString += "   " + character.Name + " - LVL " + character.Level + (character.IsCurrent ? " (loaded)" : "") + Environment.NewLine;
+                    } 
+                }
+
+                var lChars = CharacterRepository.Characters.OfType<L5RCharacter>().Where(x => x.Player == Context.Message.Author.Mention);
+                if (lChars.Any())
+                {
+                    characterString += "Legend of the five Rings:" + Environment.NewLine;
+                    foreach (var character in lChars)
+                    {
+                        characterString += "   " + character.Name + " - " + character.Clan + (character.IsCurrent ? " (loaded)" : "") + Environment.NewLine;
+                    } 
                 }
                 characterString += "```";
 
@@ -67,11 +83,11 @@ namespace BotDiscord.Modules
             }
             else
             {
-                AnimaCharacter character = null;
+                PlayableCharacter character = null;
                 try
                 {
-                    AnimaCharacterRepository.animaCharacters.Where(x => x.Player == Context.Message.Author.Mention).ToList().ForEach(x => x.IsCurrent = false);
-                    character = AnimaCharacterRepository.animaCharacters.First(x => x.Name.ToLower() == name.ToLower());
+                    CharacterRepository.Characters.Where(x => x.Player == Context.Message.Author.Mention).ToList().ForEach(x => x.IsCurrent = false);
+                    character = CharacterRepository.Find<PlayableCharacter>(Context.Message.Author.Mention, name);
                     character.IsCurrent = true;
 
                     //await (Context.Message.Author as IGuildUser).ModifyAsync(x => x.Nickname = character.Name);
@@ -81,10 +97,10 @@ namespace BotDiscord.Modules
                     await Context.Channel.SendMessageAsync("Error 404: Character not found!");
                     throw;
                 }
-                catch (Exception)
-                {
-                    await Context.Channel.SendMessageAsync("Nickname could not be changed for " + Context.Message.Author.Mention);
-                }
+                //catch (Exception)
+                //{
+                //    await Context.Channel.SendMessageAsync("Nickname could not be changed for " + Context.Message.Author.Mention);
+                //}
 
                 await Context.Message.DeleteAsync();
                 await Context.Channel.SendMessageAsync($"Character : {character.Name} successfully loaded !");
@@ -92,11 +108,26 @@ namespace BotDiscord.Modules
             }
         }
 
-        [Command("UImage"), Summary("Upload une image pour le personnage chargé")]
-        [Alias("image", "img", "Image")]
+        [Command("!c delete")]
+        public async Task DeleteCharacter(params string[] s)
+        {
+            string expr = string.Join(' ', s);
+            PlayableCharacter character = CharacterRepository.Find<PlayableCharacter>(Context.Message.Author.Mention, expr);
+            if (character == null)
+            {
+                _ = Context.Message.DeleteAsync();
+                await Context.Channel.SendMessageAsync("Error 404: Character not found or currently loaded!");
+                return;
+            }
+
+            CharacterRepository.DeleteExcelCharacter(character);
+        }
+
+        [Command("!c UImage"), Summary("Upload une image pour le personnage chargé")]
+        [Alias("!c image", "!c img", "!c Image")]
         public async Task SetCharImage()
         {
-            AnimaCharacter character = AnimaCharacterRepository.FindCurrentByMention(Context.Message.Author.Mention);
+            PlayableCharacter character = CharacterRepository.FindCurrentByMention<PlayableCharacter>(Context.Message.Author.Mention);
             if (character == null)
             {
                 _ = Context.Message.DeleteAsync();
@@ -117,160 +148,10 @@ namespace BotDiscord.Modules
             }
         }
 
-        [Command("Status")]
-        [Alias("status", "statut", "Statut")]
-        public async Task Status()
-        {
-            AnimaCharacter character = AnimaCharacterRepository.FindCurrentByMention(Context.Message.Author.Mention);
-            if (character == null)
-            {
-                await Context.Channel.SendMessageAsync("Error 404: Character not found or not loaded!");
-                return;
-            }
-
-            _ = Context.Message.DeleteAsync();
-            var embed = new EmbedBuilder
-            {
-                Title = "Status"
-            };
-            embed.WithAuthor(character.Name)
-                .WithThumbnailUrl(character.ImageUrl)
-                .AddField("Hp", $"{character.CurrentHp}/{character.Hp}")
-                .AddField("Fatigue", $"{character.CurrentFatigue}/{character.Fatigue}")
-                .AddField("Points de Ki", $"{character.CurrentKi}/{character.TotalKiPoints}")
-                .AddField("Zéon", $"{character.CurrentZeon}/{character.ZeonPoints}")
-                .AddField("Ppp libres", $"{character.CurrentPpp}/{character.PppFree}");
-
-
-            //embed.Author = new EmbedAuthorBuilder();
-            //embed.Author.Name = character.Name;
-            //embed.ThumbnailUrl = character.ImageUrl;
-            //embed.AddInlineField("Hp", $"{character.CurrentHp}/{character.Hp}");
-            //embed.AddInlineField("Fatigue", $"{character.CurrentFatigue}/{character.Fatigue}");
-            //embed.AddField("Points de Ki", $"{character.CurrentKi}/{character.TotalKiPoints}");
-            //embed.AddInlineField("Zéon", $"{character.CurrentZeon}/{character.ZeonPoints}");
-            //embed.AddInlineField("Ppp libres", $"{character.CurrentPpp}/{character.PppFree}");
-            
-            await Context.User.SendMessageAsync("", false, embed.Build());
-        }
-
-        [Command("reset")]
-        [Alias("Reset")]
-        public async Task ResetCurrentStat()
-        {
-            AnimaCharacter character = AnimaCharacterRepository.FindCurrentByMention(Context.Message.Author.Mention);
-            _ = Context.Message.DeleteAsync();
-
-            character.CurrentHp = character.Hp;
-            character.CurrentFatigue = character.Fatigue;
-            character.CurrentZeon = character.ZeonPoints;
-            character.CurrentPpp = character.PppFree;
-            character.CurrentKi = character.TotalKiPoints;
-
-            var msg = await Context.Channel.SendMessageAsync($"{Context.User.Mention} {character.Name} reset");
-            await Task.Delay(3000);
-            _ = msg.DeleteAsync();
-        }
-
-        [Command("hp")]
-        [Alias("HP", "Hp")]
-        public async Task SetHp(string s)
-        {
-            AnimaCharacter character = AnimaCharacterRepository.FindCurrentByMention(Context.Message.Author.Mention);
-            _ = Context.Message.DeleteAsync();
-
-            if (s == "reset")
-                character.CurrentHp = character.Hp;
-            else if (s.Contains("+") || s.Contains("-"))
-                character.CurrentHp += Convert.ToInt32(s);
-            else
-                character.CurrentHp = Convert.ToInt32(s);
-
-            var msg = await Context.Channel.SendMessageAsync($"{Context.User.Mention} {character.Name}'s hp set to {character.CurrentHp}");
-            await Task.Delay(3000);
-            _ = msg.DeleteAsync();
-        }
-
-        [Command("fatigue")]
-        [Alias("Fatigue")]
-        public async Task SetFatigue(string s)
-        {
-            AnimaCharacter character = AnimaCharacterRepository.FindCurrentByMention(Context.Message.Author.Mention);
-            _ = Context.Message.DeleteAsync();
-
-            if (s == "reset")
-                character.CurrentFatigue = character.Fatigue;
-            else if (s.Contains("+") || s.Contains("-"))
-                character.CurrentFatigue += Convert.ToInt32(s);
-            else
-                character.CurrentFatigue = Convert.ToInt32(s);
-
-            var msg = await Context.Channel.SendMessageAsync($"{Context.User.Mention} {character.Name}'s fatigue set to {character.CurrentFatigue}");
-            await Task.Delay(3000);
-            _ = msg.DeleteAsync();
-        }
-
-        [Command("zéon")]
-        [Alias("zeon", "Zéon", "Zeon")]
-        public async Task SetZeon(string s)
-        {
-            AnimaCharacter character = AnimaCharacterRepository.FindCurrentByMention(Context.Message.Author.Mention);
-            _ = Context.Message.DeleteAsync();
-
-            if (s == "reset")
-                character.CurrentZeon = character.ZeonPoints;
-            else if (s.Contains("+") || s.Contains("-"))
-                character.CurrentZeon += Convert.ToInt32(s);
-            else
-                character.CurrentZeon = Convert.ToInt32(s);
-
-            var msg = await Context.Channel.SendMessageAsync($"{Context.User.Mention} {character.Name}'s zeon set to {character.CurrentZeon}");
-            await Task.Delay(3000);
-            _ = msg.DeleteAsync();
-        }
-
-        [Command("ppp")]
-        [Alias("Ppp")]
-        public async Task SetPpp(string s)
-        {
-            AnimaCharacter character = AnimaCharacterRepository.FindCurrentByMention(Context.Message.Author.Mention);
-            _ = Context.Message.DeleteAsync();
-
-            if (s == "reset")
-                character.CurrentPpp = character.PppFree;
-            else if (s.Contains("+") || s.Contains("-"))
-                character.CurrentPpp += Convert.ToInt32(s);
-            else
-                character.CurrentPpp = Convert.ToInt32(s);
-
-            var msg = await Context.Channel.SendMessageAsync($"{Context.User.Mention} {character.Name}'s ppp set to {character.CurrentPpp}");
-            await Task.Delay(3000);
-            _ = msg.DeleteAsync();
-        }
-
-        [Command("ki")]
-        [Alias("Ki")]
-        public async Task SetKi(string s)
-        {
-            AnimaCharacter character = AnimaCharacterRepository.FindCurrentByMention(Context.Message.Author.Mention);
-            _ = Context.Message.DeleteAsync();
-
-            if (s == "reset")
-                character.CurrentKi = character.TotalKiPoints;
-            else if (s.Contains("+") || s.Contains("-"))
-                character.CurrentKi += Convert.ToInt32(s);
-            else
-                character.CurrentKi = Convert.ToInt32(s);
-
-            var msg = await Context.Channel.SendMessageAsync($"{Context.User.Mention} {character.Name}'s ki set to {character.CurrentKi}");
-            await Task.Delay(3000);
-            _ = msg.DeleteAsync();
-        }
-
-        [Command("info"), Summary("Informations sur le personnage")]
+        [Command("!c info"), Summary("Informations sur le personnage")]
         public async Task Info(params string[] s)
         {
-            AnimaCharacter character = AnimaCharacterRepository.FindCurrentByMention(Context.Message.Author.Mention);
+            PlayableCharacter character = CharacterRepository.FindCurrentByMention<PlayableCharacter>(Context.Message.Author.Mention);
             if (character == null)
             {
                 await Context.Channel.SendMessageAsync("Error 404: Character not found or not loaded!");
@@ -281,14 +162,14 @@ namespace BotDiscord.Modules
             if (stat == null || stat == string.Empty)
             {
                 await Context.Message.DeleteAsync();
-                await Context.Channel.SendMessageAsync(KeywordsHelp(character));
+                await Context.Channel.SendMessageAsync(character.KeywordsHelp());
             }
             else
             {
                 RollableStat rollableStat;
                 try
                 {
-                    rollableStat = character.AllStats.First(x => x.Name.ToLower() == stat || x.Aliases.Any(y => y.ToLower() == stat));
+                    rollableStat = character.AllStats.FindByRawStat(stat);
 
                     await Context.Message.DeleteAsync();
                     await Context.Channel.SendMessageAsync(Context.User.Mention + " " + rollableStat.Name + " : " + rollableStat.Value);
@@ -301,39 +182,7 @@ namespace BotDiscord.Modules
             }
         }
 
-        [Command("r"), Summary("Lance les dées pour la stat passée en paramètre")]
-        public async Task Roll(params string[] s)
-        {
-            AnimaCharacter character = AnimaCharacterRepository.FindCurrentByMention(Context.Message.Author.Mention);
-            if(character == null)
-            {
-                await Context.Channel.SendMessageAsync("Error 404: Character not found or not loaded!");
-                return;
-            }
-
-            string statBonusStr = s.FirstOrDefault(x => x.StartsWith("+") || x.StartsWith("-"));
-            int bonus = Convert.ToInt32(statBonusStr);
-            string stat = string.Join(" ", s).ToLower();
-            if (!string.IsNullOrWhiteSpace(statBonusStr))
-            {
-                stat = stat.Replace($" {statBonusStr}", ""); 
-            }
-
-            if (stat == null || stat == string.Empty)
-            {
-                await Context.Message.DeleteAsync();
-                await Context.Channel.SendMessageAsync(KeywordsHelp(character));
-            }
-            else
-            {
-                await Context.Message.DeleteAsync();
-                await Context.Channel.SendMessageAsync(string.Format("{0} {1}",
-                    Context.User.Mention,
-                    character.Roll(stat, bonus)));
-            }
-        }
-
-        [Command("fight")]
+        [Command("!c fight")]
         public async Task FightMessage()
         {
             _ = Context.Message.DeleteAsync();
@@ -357,20 +206,6 @@ namespace BotDiscord.Modules
                 await Task.Delay(1000);
             }
 
-        }
-
-        public string KeywordsHelp(AnimaCharacter character)
-        {
-            string helpText = "";
-            foreach (string group in AnimaCharacter.StatGroups)
-            {
-                helpText += group + " :" + Environment.NewLine;
-                helpText += "```";
-                helpText += string.Join(", ", character.AllStats.Where(x => x.Group == group).Select(x => x.Name));
-                helpText += "```" + Environment.NewLine;
-            }
-            
-            return $"Available keywords for !c info/r :{Environment.NewLine}{helpText}";
         }
     }
 }

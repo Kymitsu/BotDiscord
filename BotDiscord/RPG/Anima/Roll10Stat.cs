@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BotDiscord.RPG.Anima
 {
-    public class Roll10Stat : RollableStat
+    public class Roll10Stat : AnimaRollableStat
     {
         public Roll10Stat(string group, string name, int value) : base(group, name, value)
         {

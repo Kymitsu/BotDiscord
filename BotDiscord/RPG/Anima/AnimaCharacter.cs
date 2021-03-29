@@ -99,19 +99,19 @@ namespace BotDiscord.RPG.Anima
             SecondaryStats.Add(new Roll100Stat(StatGroups[3], excelWorksheet.Cells["G35"].Text, Convert.ToInt32(excelWorksheet.Cells["N35"].Value)));
             SecondaryStats.RemoveAll(x => string.IsNullOrWhiteSpace(x.Name));
 
-            AllStats.AddRange(BaseStats);
-            AllStats.AddRange(Resistances);
-            AllStats.AddRange(BattleStats);
-            AllStats.AddRange(SecondaryStats);
+            base.AllStats.AddRange(BaseStats);
+            base.AllStats.AddRange(Resistances);
+            base.AllStats.AddRange(BattleStats);
+            base.AllStats.AddRange(SecondaryStats);
         }
 
         public string Roll(string rawStat, int bonus)
         {
             string resultMsg = string.Empty;
-            RollableStat rollableStat;
+            AnimaRollableStat rollableStat;
             try
             {
-                rollableStat = this.AllStats.First(x => x.Name.ToLower() == rawStat.ToLower() || x.Aliases.Any(y => y.ToLower() == rawStat.ToLower()));
+                rollableStat = this.AllStats.FindByRawStat(rawStat);
             }
             catch (Exception)
             {
@@ -137,8 +137,8 @@ namespace BotDiscord.RPG.Anima
                     // et affiche le resultat de maladress
                     resultMsg += Environment.NewLine;
                     resultMsg += string.Format("maladress : {0} {1}",
-                    resultDice.ResultText,
-                    (!string.IsNullOrEmpty(rollableStat.Name) ? rollableStat.Name : ""));
+                        resultDice.ResultText,
+                        (!string.IsNullOrEmpty(rollableStat.Name) ? rollableStat.Name : ""));
                 }
             }
             else if(rollableStat is ResistanceStat)
@@ -164,6 +164,20 @@ namespace BotDiscord.RPG.Anima
             return resultMsg;
         }
 
+        public override string KeywordsHelp()
+        {
+            string helpText = "";
+            foreach (string group in AnimaCharacter.StatGroups)
+            {
+                helpText += group + " :" + Environment.NewLine;
+                helpText += "```";
+                helpText += string.Join(", ", AllStats.Where(x => x.Group == group).Select(x => x.Name));
+                helpText += "```";
+            }
+
+            return $"Available keywords for !c info/r :{Environment.NewLine}{helpText}";
+        }
+
         private void AddRollStatistics(RollableStat stat, DiceResult dice)
         {
             string statName = stat.Name.Replace(" ", "").Replace("Défense:", "");
@@ -177,10 +191,10 @@ namespace BotDiscord.RPG.Anima
 
 
         //Utiliser uniquement pour les events reactionAdded reactionDeleted
-        public static string StaticRoll(AnimaCharacter character, string rawStat, int bonus)
-        {
-            return character.Roll(rawStat, bonus);
-        }
+        //public static string StaticRoll(AnimaCharacter character, string rawStat, int bonus)
+        //{
+        //    return character.Roll(rawStat, bonus);
+        //}
 
         #region Properties
         public string Origine { get; set; }
@@ -206,7 +220,8 @@ namespace BotDiscord.RPG.Anima
         public Boolean IsLucky { get; set; }
         public Boolean IsUnlucky { get; set; }
         public Boolean DestinFuneste { get; set; }
-        public List<RollableStat> AllStats { get; set; } = new List<RollableStat>();
+
+        public new List<AnimaRollableStat> AllStats { get { return base.AllStats.Cast<AnimaRollableStat>().ToList(); }}
         public List<Roll10Stat> BaseStats { get; set; } = new List<Roll10Stat>();
         public List<ResistanceStat> Resistances { get; set; } = new List<ResistanceStat>();
         public List<Roll100Stat> BattleStats { get; set; } = new List<Roll100Stat>();

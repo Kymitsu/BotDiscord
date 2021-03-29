@@ -59,7 +59,7 @@ namespace BotDiscord.Modules
             if (_sessionStart == DateTime.MinValue)
             {
                 _sessionStart = DateTime.Now;
-                await Context.Channel.SendMessageAsync($"> **Début de séance**"); 
+                await Context.Channel.SendMessageAsync($"> **Début de séance** {Environment.NewLine}_N'oubliez pas de charger votre personnage!_"); 
             }
             else
             {
@@ -77,14 +77,14 @@ namespace BotDiscord.Modules
             await Context.Channel.SendMessageAsync($">>> **Fin de séance**{Environment.NewLine}Durée de la séance: {ellapsedTime.Hours}h {ellapsedTime.Minutes}m");
             _sessionStart = DateTime.MinValue;
 
-            AnimaCharacterRepository.SaveLoadedCharacter();
+            _ = Task.Run(CharacterRepository.SaveLoadedCharacters);
         }
 
         [Command("!session stats")]
         public async Task SessionStats()
         {
             await Context.Message.DeleteAsync();
-            List<AnimaCharacter> characters = AnimaCharacterRepository.animaCharacters.Where(x => x.IsCurrent).ToList();
+            List<AnimaCharacter> characters = CharacterRepository.Characters.OfType<AnimaCharacter>().Where(x => x.IsCurrent).ToList();
 
             Dictionary<string, List<DiceResult>> allStatistics = new Dictionary<string, List<DiceResult>>();
             allStatistics = characters.SelectMany(x => x.RollStatistics)
@@ -160,6 +160,17 @@ namespace BotDiscord.Modules
             }
             helpLine += "```";
             await Context.Channel.SendMessageAsync(helpLine);
+        }
+
+        [Command("!new help")]
+        public async Task TestHelp()
+        {
+            EmbedBuilder helpEmbed = new EmbedBuilder();
+            helpEmbed.WithTitle("test help");
+
+            var msg = await Context.Channel.SendMessageAsync(embed: helpEmbed.Build());
+            await msg.AddReactionAsync(new Emoji("\U000025c0"));
+            await msg.AddReactionAsync(new Emoji("\U000025b6"));
         }
     }
 }

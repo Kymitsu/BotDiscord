@@ -21,7 +21,7 @@ namespace BotDiscord
 
         public async Task MainAsync()
         {
-            AnimaCharacterRepository.LoadFromCurrentDirectory();
+            CharacterRepository.LoadFromCurrentDirectory();
 
             _client = new DiscordSocketClient();
             _client.Log += Log;
