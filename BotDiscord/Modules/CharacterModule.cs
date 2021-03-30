@@ -114,16 +114,25 @@ namespace BotDiscord.Modules
         [Summary("Supprime définitvement un personnage!")]
         public async Task DeleteCharacter(params string[] s)
         {
+            _ = Context.Message.DeleteAsync();
             string expr = string.Join(' ', s);
             PlayableCharacter character = CharacterRepository.Find<PlayableCharacter>(Context.Message.Author.Mention, expr);
             if (character == null)
             {
-                _ = Context.Message.DeleteAsync();
                 await Context.Channel.SendMessageAsync("Error 404: Character not found or currently loaded!");
                 return;
             }
 
-            CharacterRepository.DeleteExcelCharacter(character);
+            try
+            {
+                CharacterRepository.DeleteExcelCharacter(character);
+            }
+            catch (Exception ex)
+            {
+                await Context.Channel.SendMessageAsync($"Erreur lors de la suppression du fichier.{Environment.NewLine}{ex.Message}");
+                throw;
+            }
+            await Context.Channel.SendMessageAsync("Suppression effectuée.");
         }
 
         [Command("!c image"), Summary("Upload une image pour le personnage chargé")]

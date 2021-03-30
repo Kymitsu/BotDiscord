@@ -81,7 +81,9 @@ namespace BotDiscord.Modules
             await Context.Channel.SendMessageAsync($">>> **Fin de séance**{Environment.NewLine}Durée de la séance: {ellapsedTime.Hours}h {ellapsedTime.Minutes}m");
             _sessionStart = DateTime.MinValue;
 
-            _ = Task.Run(CharacterRepository.SaveLoadedCharacters);
+            await Task.Run(CharacterRepository.SaveLoadedCharacters);
+
+            CharacterRepository.UnloadCharacters();
         }
 
         [Command("!session stats")]
@@ -146,6 +148,7 @@ namespace BotDiscord.Modules
         [Summary("Liste de toutes les commandes")]
         public async Task Help(string category = "")
         {
+            await Context.Message.DeleteAsync();
             HelpEmbed helpEmbeds = new HelpEmbed(_commandService.Modules);
 
             switch (category.ToLower())

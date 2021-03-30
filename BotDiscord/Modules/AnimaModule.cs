@@ -122,7 +122,7 @@ namespace BotDiscord.Modules
             embed.WithThumbnailUrl(character.ImageUrl)
                 .AddField("Hp", $"{character.CurrentHp}/{character.Hp}", true)
                 .AddField("Fatigue", $"{character.CurrentFatigue}/{character.Fatigue}", true)
-                .AddField("Points de Ki", $"{character.CurrentKi}/{character.TotalKiPoints}", false)
+                .AddField("Points de Ki", $"{character.CurrentKi}/{character.TotalKiPoints}", true)
                 .AddField("Zéon", $"{character.CurrentZeon}/{character.ZeonPoints}", true)
                 .AddField("Ppp libres", $"{character.CurrentPpp}/{character.PppFree}", true);
 
