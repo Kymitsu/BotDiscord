@@ -76,7 +76,8 @@ namespace BotDiscord.Modules
         [Command("!l posture")]
         [Alias("!l stance", "!l p")]
         [Summary("Change la posture utilisée en combat `!l p feu`")]
-        public async Task SetCharacterStance(string s)
+        [Priority(1)]
+        public async Task SetCharacterStance(string s = "")
         {
             _ = Context.Message.DeleteAsync();
             L5RCharacter character = CharacterRepository.FindCurrentByMention<L5RCharacter>(Context.Message.Author.Mention);

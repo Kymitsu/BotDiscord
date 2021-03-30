@@ -85,7 +85,9 @@ namespace BotDiscord.RPG.L5R
 
         public void SetCurrentStance(string ring)
         {
-            if (Rings.ContainsKey(ring))
+            if (string.IsNullOrEmpty(ring))
+                CurrentStance = ring;
+            else if (Rings.ContainsKey(ring))
                 CurrentStance = ring;
             else
                 throw new ArgumentException($"Changement de posture: Anneau en paramètre incorrect : {ring}");
