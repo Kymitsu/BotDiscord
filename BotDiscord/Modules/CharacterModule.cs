@@ -38,6 +38,7 @@ namespace BotDiscord.Modules
                 try
                 {
                     await GenericTools.HandleFile(Context.Message.Attachments.First(), Context.Message.Author.Mention);
+                    await Context.Channel.SendMessageAsync("Personnage uploadé avec succès.");
                 }
                 catch (Exception ex)
                 {

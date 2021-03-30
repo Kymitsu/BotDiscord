@@ -76,14 +76,21 @@ namespace BotDiscord.Modules
         public async Task JdrSessionEnd()
         {
             await Context.Message.DeleteAsync();
-            DateTime end = DateTime.Now;
-            TimeSpan ellapsedTime = end - _sessionStart;
-            await Context.Channel.SendMessageAsync($">>> **Fin de séance**{Environment.NewLine}Durée de la séance: {ellapsedTime.Hours}h {ellapsedTime.Minutes}m");
-            _sessionStart = DateTime.MinValue;
+            if (_sessionStart != DateTime.MinValue)
+            {
+                DateTime end = DateTime.Now;
+                TimeSpan ellapsedTime = end - _sessionStart;
+                await Context.Channel.SendMessageAsync($">>> **Fin de séance**{Environment.NewLine}Durée de la séance: {ellapsedTime.Hours}h {ellapsedTime.Minutes}m");
+                _sessionStart = DateTime.MinValue;
 
-            await Task.Run(CharacterRepository.SaveLoadedCharacters);
+                await Task.Run(CharacterRepository.SaveLoadedCharacters);
 
-            CharacterRepository.UnloadCharacters();
+                CharacterRepository.UnloadCharacters(); 
+            }
+            else
+            {
+                await Context.Channel.SendMessageAsync($"Aucune séance en cour");
+            }
         }
 
         [Command("!session stats")]

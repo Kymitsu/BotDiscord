@@ -122,7 +122,7 @@ namespace BotDiscord.RPG.Anima
 
         public static void UnloadCharacters()
         {
-            Characters.All(x => x.IsCurrent = false);
+            Characters.ForEach(x => x.IsCurrent = false);
         }
         
         public static void DeleteExcelCharacter(PlayableCharacter character)
