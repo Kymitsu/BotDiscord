@@ -102,8 +102,8 @@ namespace BotDiscord.Modules
             }
         }
 
-        [Command("!c Status")]
-        [Alias("!c status", "!c statut", "!c Statut")]
+        [Command("!c status")]
+        [Alias("!c Status", "!c statut", "!c Statut")]
         [Summary("Envoi en MP le statut de ton personnage")]
         public async Task Status()
         {
