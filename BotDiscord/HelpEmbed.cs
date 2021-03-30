@@ -9,7 +9,7 @@ namespace BotDiscord
 {
     public class HelpEmbed
     {
-        private int CurrentPage { get; set; }
+        public int CurrentPage { get; set; }
         public Dictionary<int, EmbedBuilder> Pages { get; set; }
 
         public HelpEmbed(IEnumerable<ModuleInfo> modules)

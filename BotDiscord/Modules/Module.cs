@@ -142,38 +142,30 @@ namespace BotDiscord.Modules
             await m.DeleteAsync();
         }
 
-        //[Command("!help"), Summary("Liste de toutes les commandes")]
-        //public async Task Help()
-        //{
-        //    await Context.Message.DeleteAsync();
-        //    string helpLine = "```";
-        //    foreach (var module in _commandService.Modules)
-        //    {
-        //        if (module.Name != "AudioModule")
-        //        {
-        //            string moduleName = module.Name;
-        //            moduleName += moduleName != string.Empty ? " " : string.Empty;
-        //            foreach (var command in module.Commands)
-        //            {
-        //                helpLine += string.Format("{2}{0} \t {1} : Ex => {2}{0} ", command.Name, command.Summary, moduleName);
-        //                foreach (var parameter in command.Parameters)
-        //                {
-        //                    helpLine += "[" + parameter.Summary + "] ";
-        //                }
-        //                helpLine += Environment.NewLine;
-        //            }
-        //            helpLine += Environment.NewLine;
-        //        }
-        //    }
-        //    helpLine += "```";
-        //    await Context.Channel.SendMessageAsync(helpLine);
-        //}
-
         [Command("!help")]
         [Summary("Liste de toutes les commandes")]
-        public async Task TestHelp()
+        public async Task Help(string category = "")
         {
             HelpEmbed helpEmbeds = new HelpEmbed(_commandService.Modules);
+
+            switch (category.ToLower())
+            {
+                case "général":
+                    helpEmbeds.CurrentPage = 2;
+                    break;
+                case "personnages":
+                    helpEmbeds.CurrentPage = 3;
+                    break;
+                case "anima":
+                    helpEmbeds.CurrentPage = 4;
+                    break;
+                case "l5r":
+                    helpEmbeds.CurrentPage = 5;
+                    break;
+                case "audio":
+                    helpEmbeds.CurrentPage = 6;
+                    break;
+            }
 
             var msg = await Context.Channel.SendMessageAsync(embed: helpEmbeds.GetCurrentPage().Build());
             CommandHandlingService.HelpMessages.Add(msg.Id, helpEmbeds);
