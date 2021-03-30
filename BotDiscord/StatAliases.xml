@@ -440,4 +440,98 @@
     <Alias value="detection de ki"/>
     <Alias value="détection de ki"/>
   </Stat>
+  <!--Legend of the five Rings-->
+  <Stat value="Esthétique">
+    <Alias value="estétique"/>
+    <Alias value="esthètique"/>
+    <Alias value="esthetique"/>
+    <Alias value="esthetic"/>
+    <Alias value="estetic"/>
+    <Alias value="esthétic"/>
+    <Alias value="esthètic"/>
+  </Stat>
+  <Stat value="Composition">
+    <Alias value="conposition"/>
+    <Alias value="compo"/>
+    <Alias value="composision"/>
+    <Alias value="composission"/>
+    <Alias value="compo"/>
+    <Alias value="conposision"/>
+    <Alias value="conposission"/>
+  </Stat>
+  <Stat value="Stylisme">
+    <Alias value="stilisme"/>
+    <Alias value="style"/>
+    <Alias value="Stile"/>
+    <Alias value="stylism"/>
+    <Alias value="stilism"/>
+    <Alias value="Stylysme"/>
+    <Alias value="stylysm"/>
+  </Stat>
+  <Stat value="Courtoisie">
+    <Alias value="courtoisi"/>
+  </Stat>
+  <Stat value="Jeux">
+    <Alias value="jeu"/>
+  </Stat>
+  <Stat value="Représentation">
+    <Alias value="representation"/>
+    <Alias value="representasion"/>
+    <Alias value="représentasion"/>
+    <Alias value="représantation"/>
+    <Alias value="représantasion"/>
+    <Alias value="represantation"/>
+    <Alias value="represantasion"/>
+  </Stat>
+  <Stat value="Culture">
+    <Alias value="cultur"/>
+  </Stat>
+  <Stat value="Gouvernement">
+    <Alias value="gouvernmant"/>
+    <Alias value="gouvernment"/>
+    <Alias value="gouv"/>
+  </Stat>
+  <Stat value="Sentiment">
+    <Alias value="santiment"/>
+    <Alias value="santimant"/>
+    <Alias value="sentimant"/>
+    <Alias value="sentimen"/>
+    <Alias value="santimen"/>
+    <Alias value="sentiman"/>
+    <Alias value="santiman"/>
+  </Stat>
+  <Stat value="Théologie">
+    <Alias value="theologi"/>
+    <Alias value="théologi"/>
+    <Alias value="téologie"/>
+    <Alias value="teologie"/>
+    <Alias value="téologi"/>
+    <Alias value="teologi"/>
+  </Stat>
+  <Stat value="Forme">
+    <Alias value="form"/>
+  </Stat>
+  <Stat value="Méditation">
+    <Alias value="meditation"/>
+    <Alias value="meditasion"/>
+    <Alias value="méditasion"/>
+  </Stat>
+  <Stat value="Travail Manuel">
+    <Alias value="travailmanuel"/>
+    <Alias value="travail manu"/>
+    <Alias value="travaille manuel"/>
+    <Alias value="travaille manu"/>
+    <Alias value="travaile manuel"/>
+    <Alias value="travaile manu"/>
+  </Stat>
+  <Stat value="Magouille">
+    <Alias value="magouil"/>
+    <Alias value="magouill"/>
+    <Alias value="magouile"/>
+  </Stat>
+  <Stat value="Survie">
+    <Alias value="survi"/>
+    <Alias value="survye"/>
+    <Alias value="survy"/>
+  </Stat>
 </Alisases> 
