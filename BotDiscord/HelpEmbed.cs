@@ -25,6 +25,8 @@ namespace BotDiscord
             page1.AddField("L5R", $"Commandes pour le jeu de rôle Legends of the five Rings{Environment.NewLine}\u200b", true);
             page1.AddField("Audio", $"Lancer des sons et de la musique. `Ne fonctionne plus`{Environment.NewLine}\u200b", true);
             page1.AddField("\u200b", "\u200b", true);//field vide pour que ça soit plus jolie
+            page1.Color = Color.DarkTeal;
+            page1.WithFooter("page 1/6");
 
             Pages.Add(1, page1);
 
@@ -41,6 +43,7 @@ namespace BotDiscord
             }
             if(commands.Count % 3 != 0)
                 page2.AddField("\u200b", "\u200b", true);
+            page2.WithFooter("page 2/6");
 
             Pages.Add(2, page2);
 
@@ -56,6 +59,7 @@ namespace BotDiscord
             }
             if (charCommands.Count % 3 != 0)
                 page3.AddField("\u200b", "\u200b", true);
+            page3.WithFooter("page 3/6");
 
             Pages.Add(3, page3);
 
@@ -71,6 +75,7 @@ namespace BotDiscord
             }
             if (animaCommands.Count % 3 != 0)
                 page4.AddField("\u200b", "\u200b", true);
+            page4.WithFooter("page 4/6");
 
             Pages.Add(4, page4);
 
@@ -86,6 +91,7 @@ namespace BotDiscord
             }
             if (lCommands.Count % 3 != 0)
                 page5.AddField("\u200b", "\u200b", true);
+            page5.WithFooter("page 5/6");
 
             Pages.Add(5, page5);
 
@@ -101,6 +107,7 @@ namespace BotDiscord
             }
             if (audioCommands.Count % 3 != 0)
                 page6.AddField("\u200b", "\u200b", true);
+            page6.WithFooter("page 6/6");
 
             Pages.Add(6, page6);
         }
