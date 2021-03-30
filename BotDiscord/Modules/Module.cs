@@ -8,21 +8,23 @@ using System.Linq;
 using Discord;
 using BotDiscord.RPG;
 using BotDiscord.RPG.Anima;
+using BotDiscord.Services;
 
 namespace BotDiscord.Modules
 {
-    [Group("")]
-    public class TestModule : ModuleBase
+    [Summary("Général")]
+    public class Module : ModuleBase
     {
         private CommandService _commandService;
         private static DateTime _sessionStart = DateTime.MinValue;
 
-        public TestModule(CommandService commandService)
+        public Module(CommandService commandService)
         {
             _commandService = commandService;
         }
 
         [Command("!")]
+        [Summary("Lancer un ou plusieurs dés. `! 2d12+5`")]
         public async Task MultipleRoll(params string[] s)
         {
             string expr = string.Join("", s).Replace("!", "");
@@ -53,6 +55,7 @@ namespace BotDiscord.Modules
         }
 
         [Command("!session start")]
+        [Summary("Démarre une séance de JDR")]
         public async Task JdrSessionStart()
         {
             await Context.Message.DeleteAsync();
@@ -69,6 +72,7 @@ namespace BotDiscord.Modules
         }
 
         [Command("!session end")]
+        [Summary("Fin de la séance de JDR.")]
         public async Task JdrSessionEnd()
         {
             await Context.Message.DeleteAsync();
@@ -81,6 +85,7 @@ namespace BotDiscord.Modules
         }
 
         [Command("!session stats")]
+        [Summary("Affiche les statistiques de jets de dés (Anima uniquement)")]
         public async Task SessionStats()
         {
             await Context.Message.DeleteAsync();
@@ -107,14 +112,16 @@ namespace BotDiscord.Modules
 
         }
 
-        [Command("!r"), Summary("Lance un Dé")]
+        [Command("!r")]
+        [Summary("Lance un dé.`!r 10 3`")]
         public async Task Roll([Summary("Taille du Dé")]int dieSize, [Summary("Bonus à ajouter")]int bonus = 0)
         {
             await Context.Message.DeleteAsync();
             await Context.Channel.SendMessageAsync(Context.User.Mention + " rolled : " + DiceHelper.SimpleRoll(dieSize, bonus).ResultText);
         }
 
-        [Command("!me"), Summary("Pour t'aider dans ton RP parce qu'un autre joueur parle trop")]
+        [Command("!me")]
+        [Summary("Pour t'aider dans ton RP parce qu'un autre joueur parle trop")]
         public async Task Me(params string[] s)
         {
             string text = string.Join(" ", s);
@@ -135,40 +142,41 @@ namespace BotDiscord.Modules
             await m.DeleteAsync();
         }
 
-        [Command("!help"), Summary("Liste de toutes les commandes")]
-        public async Task Help()
-        {
-            await Context.Message.DeleteAsync();
-            string helpLine = "```";
-            foreach (var module in _commandService.Modules)
-            {
-                if (module.Name != "AudioModule")
-                {
-                    string moduleName = module.Name;
-                    moduleName += moduleName != string.Empty ? " " : string.Empty;
-                    foreach (var command in module.Commands)
-                    {
-                        helpLine += string.Format("{2}{0} \t {1} : Ex => {2}{0} ", command.Name, command.Summary, moduleName);
-                        foreach (var parameter in command.Parameters)
-                        {
-                            helpLine += "[" + parameter.Summary + "] ";
-                        }
-                        helpLine += Environment.NewLine;
-                    }
-                    helpLine += Environment.NewLine;
-                }
-            }
-            helpLine += "```";
-            await Context.Channel.SendMessageAsync(helpLine);
-        }
+        //[Command("!help"), Summary("Liste de toutes les commandes")]
+        //public async Task Help()
+        //{
+        //    await Context.Message.DeleteAsync();
+        //    string helpLine = "```";
+        //    foreach (var module in _commandService.Modules)
+        //    {
+        //        if (module.Name != "AudioModule")
+        //        {
+        //            string moduleName = module.Name;
+        //            moduleName += moduleName != string.Empty ? " " : string.Empty;
+        //            foreach (var command in module.Commands)
+        //            {
+        //                helpLine += string.Format("{2}{0} \t {1} : Ex => {2}{0} ", command.Name, command.Summary, moduleName);
+        //                foreach (var parameter in command.Parameters)
+        //                {
+        //                    helpLine += "[" + parameter.Summary + "] ";
+        //                }
+        //                helpLine += Environment.NewLine;
+        //            }
+        //            helpLine += Environment.NewLine;
+        //        }
+        //    }
+        //    helpLine += "```";
+        //    await Context.Channel.SendMessageAsync(helpLine);
+        //}
 
-        [Command("!new help")]
+        [Command("!help")]
+        [Summary("Liste de toutes les commandes")]
         public async Task TestHelp()
         {
-            EmbedBuilder helpEmbed = new EmbedBuilder();
-            helpEmbed.WithTitle("test help");
+            HelpEmbed helpEmbeds = new HelpEmbed(_commandService.Modules);
 
-            var msg = await Context.Channel.SendMessageAsync(embed: helpEmbed.Build());
+            var msg = await Context.Channel.SendMessageAsync(embed: helpEmbeds.GetCurrentPage().Build());
+            CommandHandlingService.HelpMessages.Add(msg.Id, helpEmbeds);
             await msg.AddReactionAsync(new Emoji("\U000025c0"));
             await msg.AddReactionAsync(new Emoji("\U000025b6"));
         }

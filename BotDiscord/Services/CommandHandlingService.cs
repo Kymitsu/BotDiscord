@@ -8,6 +8,7 @@ using System.Linq;
 using System.Collections.Generic;
 using BotDiscord.RPG;
 using BotDiscord.RPG.Anima;
+using Discord.Rest;
 
 namespace BotDiscord.Services
 {
@@ -18,7 +19,8 @@ namespace BotDiscord.Services
         private IServiceProvider _provider;
         
         public static Dictionary<IEmote, string> EmotesAction = new Dictionary<IEmote, string>();
-        public static List<ulong> ReactionMessages = new List<ulong>();
+        public static List<ulong> ReactionMessages { get; set; } = new List<ulong>();
+        public static Dictionary<ulong, HelpEmbed> HelpMessages { get; set; } = new Dictionary<ulong, HelpEmbed>();
 
         public CommandHandlingService(IServiceProvider provider, DiscordSocketClient discord, CommandService commands)
         {
@@ -70,7 +72,7 @@ namespace BotDiscord.Services
 
             if (ReactionMessages.Contains(cache.Id))
             {
-                AnimaCharacter character = AnimaCharacterRepository.FindCurrentByMention(reaction.User.Value.Mention);
+                AnimaCharacter character = CharacterRepository.FindCurrentByMention<AnimaCharacter>(reaction.User.Value.Mention);
                 if (character == null)
                 {
                     await channel.SendMessageAsync("Error 404: Character not found or not loaded!");
@@ -80,6 +82,26 @@ namespace BotDiscord.Services
                 await channel.SendMessageAsync(string.Format("{0} {1}",
                     reaction.User.Value.Mention,
                     character.Roll(EmotesAction[reaction.Emote].ToLower(), 0)));
+            }
+            if (HelpMessages.ContainsKey(cache.Id))
+            {
+                if(reaction.Emote.Name == "\U000025c0")//Previous page
+                {
+                    var msg = await cache.GetOrDownloadAsync();
+                    await msg.ModifyAsync(x => {
+                        x.Content = "";
+                        x.Embed = HelpMessages[cache.Id].GetPreviousPage().Build();
+                    });
+                }
+                else if(reaction.Emote.Name == "\U000025b6")//Next page
+                {
+                    var msg = await cache.GetOrDownloadAsync();
+                    await msg.ModifyAsync(x =>
+                    {
+                        x.Content = "";
+                        x.Embed = HelpMessages[cache.Id].GetNextPage().Build();
+                    });
+                }
             }
         }
 

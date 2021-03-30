@@ -1,4 +1,5 @@
 ﻿using BotDiscord.RPG.Anima;
+using BotDiscord.Services;
 using Discord;
 using Discord.Commands;
 using System;
@@ -9,10 +10,11 @@ using System.Threading.Tasks;
 
 namespace BotDiscord.Modules
 {
-    [Group("")]
+    [Summary("Anima")]
     public class AnimaModule : ModuleBase
     {
-        [Command("!a roll"), Summary("Lance un Dé 100 avec jet ouvert")]
+        [Command("!a roll")]
+        [Summary("Lance un Dé 100 avec jet ouvert `!a roll 15 vigilance`")]
         public async Task AnimaRoll([Summary("Bonus à ajouter")]int num = 0, [Summary("Decription du lancé")]string desc = "")
         {
             await Context.Message.DeleteAsync();
@@ -23,8 +25,9 @@ namespace BotDiscord.Modules
                 );
         }
 
-        [Command("!a new"), Summary("Lance les dés pour un nouveau perso. Caractéristique la plus basse n'est pas modifiée.")]
-        public async Task New([Summary("Relance pour les valeurs inférieures ou égales")]int rerollVal = 0)
+        [Command("!a new")]
+        [Summary("Lance les dés pour un nouveau perso. Caractéristique la plus basse n'est pas modifiée. Relance pour les valeurs inférieures ou égales `!a new 4`")]
+        public async Task New(int rerollVal = 0)
         {
             string msg = $"{Context.Message.Author.Mention}{Environment.NewLine}```Caractéristiques : ";
             List<int> caract = new List<int>();
@@ -40,7 +43,8 @@ namespace BotDiscord.Modules
             await Context.Channel.SendMessageAsync(msg);
         }
 
-        [Command("!c r"), Summary("Lance les dées pour la stat passée en paramètre")]
+        [Command("!c r")]
+        [Summary("Lance les dés pour la stat passée en paramètre `!c r parade -30`")]
         public async Task Roll(params string[] s)
         {
             AnimaCharacter character = CharacterRepository.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
@@ -72,8 +76,35 @@ namespace BotDiscord.Modules
             }
         }
 
+        [Command("!c fight")]
+        [Summary("Affiche un message pour lancer automatiquement des jets de combat")]
+        public async Task FightMessage()
+        {
+            _ = Context.Message.DeleteAsync();
+            var embed = new EmbedBuilder();
+            embed.Title = "Vos actions de combat!";
+
+            StringBuilder sb = new StringBuilder();
+            foreach (var kvp in CommandHandlingService.EmotesAction)
+            {
+                sb.AppendLine($"{kvp.Key} : {kvp.Value}");
+            }
+            embed.Description = sb.ToString();
+
+            var msg = await Context.Channel.SendMessageAsync("", false, embed.Build());
+
+            CommandHandlingService.ReactionMessages.Add(msg.Id);
+
+            foreach (Emoji emoji in CommandHandlingService.EmotesAction.Keys)
+            {
+                await msg.AddReactionAsync(emoji);
+                await Task.Delay(1000);
+            }
+        }
+
         [Command("!c Status")]
         [Alias("!c status", "!c statut", "!c Statut")]
+        [Summary("Envoi en MP le statut de ton personnage")]
         public async Task Status()
         {
             AnimaCharacter character = CharacterRepository.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
@@ -86,10 +117,9 @@ namespace BotDiscord.Modules
             _ = Context.Message.DeleteAsync();
             var embed = new EmbedBuilder
             {
-                Title = "Status"
+                Title = character.Name
             };
-            embed.WithAuthor(character.Name)
-                .WithThumbnailUrl(character.ImageUrl)
+            embed.WithThumbnailUrl(character.ImageUrl)
                 .AddField("Hp", $"{character.CurrentHp}/{character.Hp}", true)
                 .AddField("Fatigue", $"{character.CurrentFatigue}/{character.Fatigue}", true)
                 .AddField("Points de Ki", $"{character.CurrentKi}/{character.TotalKiPoints}", false)
@@ -101,6 +131,7 @@ namespace BotDiscord.Modules
 
         [Command("!c reset")]
         [Alias("!c Reset")]
+        [Summary("Réinitialise toutes les stat du personnage")]
         public async Task ResetCurrentStat()
         {
             AnimaCharacter character = CharacterRepository.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
@@ -119,6 +150,7 @@ namespace BotDiscord.Modules
 
         [Command("!c hp")]
         [Alias("!c HP", "!c Hp")]
+        [Summary("Définit les HP actuels du personnage `!c hp 100` `!c hp -10` `!c hp reset`")]
         public async Task SetHp(string s)
         {
             AnimaCharacter character = CharacterRepository.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
@@ -138,6 +170,7 @@ namespace BotDiscord.Modules
 
         [Command("!c fatigue")]
         [Alias("!c Fatigue")]
+        [Summary("Définit les point de fatigue actuels du personnage `!c fatigue 6` `!c fatigue -1` `!c fatigue reset`")]
         public async Task SetFatigue(string s)
         {
             AnimaCharacter character = CharacterRepository.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
@@ -157,6 +190,7 @@ namespace BotDiscord.Modules
 
         [Command("!c zéon")]
         [Alias("!c zeon", "!c Zéon", "!c Zeon")]
+        [Summary("Définit le Zéon actuel du personnage `!c zéon 500` `!c zéon -80` `!c zéon reset`")]
         public async Task SetZeon(string s)
         {
             AnimaCharacter character = CharacterRepository.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
@@ -176,6 +210,7 @@ namespace BotDiscord.Modules
 
         [Command("!c ppp")]
         [Alias("!c Ppp")]
+        [Summary("Définit les PPP actuels du personnage `!c ppp 4` `!c ppp +1` `!c ppp reset`")]
         public async Task SetPpp(string s)
         {
             AnimaCharacter character = CharacterRepository.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
@@ -195,6 +230,7 @@ namespace BotDiscord.Modules
 
         [Command("!c ki")]
         [Alias("!c Ki")]
+        [Summary("Définit le Ki actuels du personnage `!c ki 75` `!c ki -12` `!c ki reset`")]
         public async Task SetKi(string s)
         {
             AnimaCharacter character = CharacterRepository.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);

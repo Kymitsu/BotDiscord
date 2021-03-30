@@ -13,8 +13,8 @@ using System.Threading.Tasks;
 
 namespace BotDiscord.Modules
 {
-    [Group("")]
-    public class CharacterModules : ModuleBase
+    [Summary("Personnage")]
+    public class CharacterModule : ModuleBase
     {
         [Command("!c list"), Summary("Admin uniquement")]
         [RequireUserPermission(GuildPermission.Administrator)]
@@ -29,7 +29,8 @@ namespace BotDiscord.Modules
             await Context.Channel.SendMessageAsync(msg);
         }
 
-        [Command("!c upload"), Summary("Charge les données d'un personnage depuis sa feuille Excel")]
+        [Command("!c upload")]
+        [Summary("Charge les données d'un personnage depuis une feuille Excel")]
         public async Task Upload()
         {
             if (Context.Message.Attachments.Any())
@@ -49,7 +50,8 @@ namespace BotDiscord.Modules
             }
         }
 
-        [Command("!c load"), Summary("Charge le personnage à jouer")]
+        [Command("!c load")]
+        [Summary("Charge le personnage renseigné sinon affiche les personnages disponibles")]
         public async Task Load(params string[] s)
         {
             string name = string.Join(" ", s);
@@ -109,6 +111,7 @@ namespace BotDiscord.Modules
         }
 
         [Command("!c delete")]
+        [Summary("Supprime définitvement un personnage!")]
         public async Task DeleteCharacter(params string[] s)
         {
             string expr = string.Join(' ', s);
@@ -123,8 +126,8 @@ namespace BotDiscord.Modules
             CharacterRepository.DeleteExcelCharacter(character);
         }
 
-        [Command("!c UImage"), Summary("Upload une image pour le personnage chargé")]
-        [Alias("!c image", "!c img", "!c Image")]
+        [Command("!c image"), Summary("Upload une image pour le personnage chargé")]
+        [Alias("!c img", "!c Image")]
         public async Task SetCharImage()
         {
             PlayableCharacter character = CharacterRepository.FindCurrentByMention<PlayableCharacter>(Context.Message.Author.Mention);
@@ -148,7 +151,8 @@ namespace BotDiscord.Modules
             }
         }
 
-        [Command("!c info"), Summary("Informations sur le personnage")]
+        [Command("!c info")]
+        [Summary("Informations sur une statistique ou compétence du perso chargé `!c info attaque`")]
         public async Task Info(params string[] s)
         {
             PlayableCharacter character = CharacterRepository.FindCurrentByMention<PlayableCharacter>(Context.Message.Author.Mention);
@@ -180,32 +184,6 @@ namespace BotDiscord.Modules
                 }
 
             }
-        }
-
-        [Command("!c fight")]
-        public async Task FightMessage()
-        {
-            _ = Context.Message.DeleteAsync();
-            var embed = new EmbedBuilder();
-            embed.Title = "Vos actions de combat!";
-
-            StringBuilder sb = new StringBuilder();
-            foreach (var kvp in CommandHandlingService.EmotesAction)
-            {
-                sb.AppendLine($"{kvp.Key} : {kvp.Value}");
-            }
-            embed.Description = sb.ToString();
-
-            var msg = await Context.Channel.SendMessageAsync("", false, embed.Build());
-
-            CommandHandlingService.ReactionMessages.Add(msg.Id);
-
-            foreach (Emoji emoji in CommandHandlingService.EmotesAction.Keys)
-            {
-                await msg.AddReactionAsync(emoji);
-                await Task.Delay(1000);
-            }
-
         }
     }
 }

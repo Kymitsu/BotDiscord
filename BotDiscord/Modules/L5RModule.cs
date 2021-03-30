@@ -11,10 +11,11 @@ using System.Linq;
 
 namespace BotDiscord.Modules
 {
-    [Group("")]
+    [Summary("L5R")]
     public class L5RModule : ModuleBase
     {
         [Command("!l")]
+        [Summary("Lance des dés blancs et noirs de L5R `!l 2b3n`")]
         public async Task L5rRoll(params string[] s)
         {
             string expr = string.Concat(s);
@@ -38,6 +39,7 @@ namespace BotDiscord.Modules
 
         [Command("!l r")]
         [Priority(1)]
+        [Summary("Lance les dés pour la stat passée en paramètre `!l r théologie`")]
         public async Task CharacterRoll(params string[] s)
         {
             L5RDiceHelper.GuildEmotes = Context.Guild.Emotes;
@@ -73,6 +75,7 @@ namespace BotDiscord.Modules
 
         [Command("!l posture")]
         [Alias("!l stance", "!l p")]
+        [Summary("Change la posture utilisée en combat `!l p feu`")]
         public async Task SetCharacterStance(string s)
         {
             _ = Context.Message.DeleteAsync();

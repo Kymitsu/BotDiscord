@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace BotDiscord.Modules
 {
+    [Summary("Audio")]
     public class AudioModule : ModuleBase<ICommandContext>
     {
         private readonly AudioService _service;
@@ -27,6 +28,7 @@ namespace BotDiscord.Modules
         // otherwise the bot will not respond until the Task times out.
         [Command("♪join", RunMode = RunMode.Async)]
         [Alias("$join")]
+        [Summary("Fait rejoindre le bot dans un canal vocal")]
         public async Task JoinCmd()
         {
             await Context.Message.DeleteAsync();
