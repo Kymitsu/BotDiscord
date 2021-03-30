@@ -43,6 +43,7 @@ namespace BotDiscord
             }
             if(commands.Count % 3 != 0)
                 page2.AddField("\u200b", "\u200b", true);
+            page2.Color = Color.DarkTeal;
             page2.WithFooter("page 2/6");
 
             Pages.Add(2, page2);
@@ -59,6 +60,7 @@ namespace BotDiscord
             }
             if (charCommands.Count % 3 != 0)
                 page3.AddField("\u200b", "\u200b", true);
+            page3.Color = Color.DarkTeal;
             page3.WithFooter("page 3/6");
 
             Pages.Add(3, page3);
@@ -75,6 +77,7 @@ namespace BotDiscord
             }
             if (animaCommands.Count % 3 != 0)
                 page4.AddField("\u200b", "\u200b", true);
+            page4.Color = Color.DarkTeal;
             page4.WithFooter("page 4/6");
 
             Pages.Add(4, page4);
@@ -91,6 +94,7 @@ namespace BotDiscord
             }
             if (lCommands.Count % 3 != 0)
                 page5.AddField("\u200b", "\u200b", true);
+            page5.Color = Color.DarkTeal;
             page5.WithFooter("page 5/6");
 
             Pages.Add(5, page5);
@@ -107,6 +111,7 @@ namespace BotDiscord
             }
             if (audioCommands.Count % 3 != 0)
                 page6.AddField("\u200b", "\u200b", true);
+            page6.Color = Color.DarkTeal;
             page6.WithFooter("page 6/6");
 
             Pages.Add(6, page6);
