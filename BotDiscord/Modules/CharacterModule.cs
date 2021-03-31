@@ -16,19 +16,6 @@ namespace BotDiscord.Modules
     [Summary("Personnage")]
     public class CharacterModule : ModuleBase
     {
-        [Command("!c list"), Summary("Admin uniquement")]
-        [RequireUserPermission(GuildPermission.Administrator)]
-        public async Task List()
-        {
-            string msg = "";
-            foreach (var character in CharacterRepository.Characters)
-            {
-                msg += character.Name + Environment.NewLine;
-            }
-            await Context.Message.DeleteAsync();
-            await Context.Channel.SendMessageAsync(msg);
-        }
-
         [Command("!c upload")]
         [Summary("Charge les données d'un personnage depuis une feuille Excel")]
         public async Task Upload()
