@@ -118,7 +118,7 @@ namespace BotDiscord.Modules
             }
 
             await Context.Channel.SendMessageAsync($"```{sb.ToString()}```");
-
+            characters.ForEach(x => x.RollStatistics = new Dictionary<string, List<DiceResult>>());
         }
 
         [Command("!r")]

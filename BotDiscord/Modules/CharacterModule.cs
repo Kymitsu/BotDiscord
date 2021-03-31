@@ -37,8 +37,9 @@ namespace BotDiscord.Modules
             {
                 try
                 {
+                    var msg = await Context.Channel.SendMessageAsync($"{Context.Message.Author.Mention} Téléchargement en cour...");
                     await GenericTools.HandleFile(Context.Message.Attachments.First(), Context.Message.Author.Mention);
-                    await Context.Channel.SendMessageAsync("Personnage uploadé avec succès.");
+                    await msg.ModifyAsync(x => x.Content = $"{Context.Message.Author.Mention} Personnage uploadé avec succès");
                 }
                 catch (Exception ex)
                 {
@@ -58,7 +59,7 @@ namespace BotDiscord.Modules
             string name = string.Join(" ", s);
             if (string.IsNullOrEmpty(name))
             {
-                var characterString = "```yaml" + Environment.NewLine;
+                var characterString = "```yaml" + Environment.NewLine + "\u200b";
 
                 var animaChars = CharacterRepository.Characters.OfType<AnimaCharacter>().Where(x => x.Player == Context.Message.Author.Mention);
                 if (animaChars.Any())

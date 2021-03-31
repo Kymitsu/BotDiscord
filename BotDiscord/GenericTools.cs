@@ -24,7 +24,7 @@ namespace BotDiscord
 
         public async static Task HandleFile(IAttachment attachment, string mention)
         {
-            if (Path.GetExtension(attachment.Filename) != ".xlsx") return;
+            if (Path.GetExtension(attachment.Filename) != ".xlsx") throw new ArgumentException("Format de fichier incorrect.");
 
             using (HttpClient hclient = new HttpClient())
             {
