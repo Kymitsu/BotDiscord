@@ -46,7 +46,7 @@ namespace BotDiscord.Modules
             string name = string.Join(" ", s);
             if (string.IsNullOrEmpty(name))
             {
-                var characterString = "```yaml" + Environment.NewLine + "\u200b";
+                var characterString = "```yaml" + Environment.NewLine;
 
                 var animaChars = CharacterRepository.Characters.OfType<AnimaCharacter>().Where(x => x.Player == Context.Message.Author.Mention);
                 if (animaChars.Any())
@@ -67,7 +67,7 @@ namespace BotDiscord.Modules
                         characterString += "   " + character.Name + " - " + character.Clan + (character.IsCurrent ? " (loaded)" : "") + Environment.NewLine;
                     } 
                 }
-                characterString += "```";
+                characterString += Environment.NewLine + "\u200b```";
 
                 await Context.Message.DeleteAsync();
                 await Context.Channel.SendMessageAsync("List of playable characters :" + Environment.NewLine + characterString);
