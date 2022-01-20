@@ -24,7 +24,7 @@ namespace BotDiscord.Modules
             {
                 try
                 {
-                    var msg = await Context.Channel.SendMessageAsync($"{Context.Message.Author.Mention} Téléchargement en cour...");
+                    var msg = await Context.Channel.SendMessageAsync($"{Context.Message.Author.Mention} Téléchargement en cours...");
                     await GenericTools.HandleFile(Context.Message.Attachments.First(), Context.Message.Author.Mention);
                     await msg.ModifyAsync(x => x.Content = $"{Context.Message.Author.Mention} Personnage uploadé avec succès");
                 }
