@@ -66,7 +66,7 @@ namespace BotDiscord.Services
             }
         }
 
-        private async Task ReactionAddedOrRemoved(Cacheable<IUserMessage, ulong> cache, ISocketMessageChannel channel, SocketReaction reaction)
+        private async Task ReactionAddedOrRemoved(Cacheable<IUserMessage, ulong> cache, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction)
         {
             if (reaction.User.Value.IsBot) return;
 
@@ -75,11 +75,11 @@ namespace BotDiscord.Services
                 AnimaCharacter character = CharacterRepository.FindCurrentByMention<AnimaCharacter>(reaction.User.Value.Mention);
                 if (character == null)
                 {
-                    await channel.SendMessageAsync("Error 404: Character not found or not loaded!");
+                    await channel.Value.SendMessageAsync("Error 404: Character not found or not loaded!");
                     return;
                 }
 
-                await channel.SendMessageAsync(string.Format("{0} {1}",
+                await channel.Value.SendMessageAsync(string.Format("{0} {1}",
                     reaction.User.Value.Mention,
                     character.Roll(EmotesAction[reaction.Emote].ToLower(), 0)));
             }
