@@ -22,7 +22,7 @@ namespace BotDiscord.RPG
             if (xmlAliases == null)
             {
                 string xmlString = string.Empty;
-                using (Stream stream = Assembly.GetEntryAssembly().GetManifestResourceStream("BotDiscord.StatAliases.xml"))
+                using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("BotDiscord.StatAliases.xml"))
                 {
                     using (StreamReader sr = new StreamReader(stream))
                     {
@@ -31,7 +31,7 @@ namespace BotDiscord.RPG
                 }
 
                 xmlAliases = new XmlDocument();
-                xmlAliases.LoadXml(xmlString); 
+                xmlAliases.LoadXml(xmlString);
             }
 
             XmlNodeList aliasNodes = xmlAliases.SelectSingleNode($"Alisases//Stat[@value=\"{Name}\"]")?.ChildNodes;
@@ -40,7 +40,7 @@ namespace BotDiscord.RPG
                 foreach (XmlElement element in aliasNodes)
                 {
                     Aliases.Add(element.GetAttribute("value"));
-                } 
+                }
             }
         }
 

@@ -65,7 +65,7 @@ namespace BotDiscord.Modules
                 //await _service.AddToPlaylist(file);
                 //await Context.Channel.SendMessageAsync($"{file} added to playlist. {_service.Playlist.Count} audio in playlist.");
             }
-            
+
         }
 
         [Command("♪loop", RunMode = RunMode.Async)]
@@ -81,7 +81,7 @@ namespace BotDiscord.Modules
 
         [Command("♪add", RunMode = RunMode.Async)]
         [Alias("$add")]
-        public async Task AddCmd([Remainder]string file)
+        public async Task AddCmd([Remainder] string file)
         {
             await Context.Message.DeleteAsync();
             await _service.AddToPlaylist(file);
@@ -111,7 +111,7 @@ namespace BotDiscord.Modules
             if (_service.IsBotPlaying)
             {
                 _ = _service.SkipAudioAsync();
-                await Context.Channel.SendMessageAsync($"{_service.CurrentAudio} Skipped"); 
+                await Context.Channel.SendMessageAsync($"{_service.CurrentAudio} Skipped");
             }
             else
             {
@@ -132,13 +132,13 @@ namespace BotDiscord.Modules
             {
                 volume = 0.5;
             }
-            
-            if(volume > 1.5)
+
+            if (volume > 1.5)
                 volume = 1.5;
 
             if (volume <= 0)
             {
-                _service.IsMute = true; 
+                _service.IsMute = true;
                 await Context.Channel.SendMessageAsync("AudioBot muted!");
             }
             else
@@ -163,7 +163,7 @@ namespace BotDiscord.Modules
                 {
                     await Context.Channel.SendMessageAsync("AudioBot unmuted!");
                 }
-                _service.IsMute = !_service.IsMute; 
+                _service.IsMute = !_service.IsMute;
             }
             else
             {
@@ -199,7 +199,7 @@ namespace BotDiscord.Modules
                     await Context.Channel.SendMessageAsync("AudioBot paused!");
                 else
                     await Context.Channel.SendMessageAsync("AudioBot resumed!");
-                await _service.PauseAudioAsync(); 
+                await _service.PauseAudioAsync();
             }
             else
             {

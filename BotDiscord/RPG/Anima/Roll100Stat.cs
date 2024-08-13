@@ -10,18 +10,18 @@ namespace BotDiscord.RPG.Anima
         {
         }
 
-        public override DiceResult Roll(int temporaryBonus, Boolean destinFuneste)
+        public override DiceResult Roll(int temporaryBonus, bool destinFuneste)
         {
             return AnimaDiceHelper.AnimaRoll(destinFuneste, Value, temporaryBonus);
         }
         public override DiceResult FailRoll(int score)
         {
-            List<int> temp = new List<int> ();
-            if (this.Group == "Champs principal")
+            List<int> temp = new List<int>();
+            if (Group == "Champs principal")
             {
-                if (this.Name == "Initiative")
+                if (Name == "Initiative")
                 {
-                    temp.Add(this.Value);
+                    temp.Add(Value);
                     switch (score)
                     {
                         case 1:
@@ -33,7 +33,7 @@ namespace BotDiscord.RPG.Anima
                             return new DiceResult(temp, -75);
                     }
                 }
-                else if (this.Name == "Attaque")
+                else if (Name == "Attaque")
                 {
                     switch (score)
                     {
@@ -51,7 +51,7 @@ namespace BotDiscord.RPG.Anima
                 }
                 else
                 {
-                    temp.Add(this.Value);
+                    temp.Add(Value);
                     switch (score)
                     {
                         case 1:
@@ -67,7 +67,7 @@ namespace BotDiscord.RPG.Anima
                     }
                 }
             }
-            else if (this.Group == "Champs secondaire")
+            else if (Group == "Champs secondaire")
             {
                 // all secondary stat are done the same way
                 switch (score)

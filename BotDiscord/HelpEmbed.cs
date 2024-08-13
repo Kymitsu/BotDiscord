@@ -23,7 +23,7 @@ namespace BotDiscord
             page1.AddField("Personnages", $"Commandes pour la gestion des feuilles de personnage{Environment.NewLine}\u200b", true);
             page1.AddField("Anima", $"Commandes pour le jeu de rôle Anima{Environment.NewLine}\u200b", true);
             page1.AddField("L5R", $"Commandes pour le jeu de rôle Legends of the five Rings{Environment.NewLine}\u200b", true);
-            page1.AddField("Audio", $"Lancer des sons et de la musique. `Ne fonctionne plus`{Environment.NewLine}\u200b", true);
+            //page1.AddField("Audio", $"Lancer des sons et de la musique. `Ne fonctionne plus`{Environment.NewLine}\u200b", true);
             page1.AddField("\u200b", "\u200b", true);//field vide pour que ça soit plus jolie
             page1.Color = Color.DarkTeal;
             page1.WithFooter("page 1/6");
@@ -41,7 +41,7 @@ namespace BotDiscord
                 fieldValue += $"{Environment.NewLine}\u200b";
                 page2.AddField(command.Name, fieldValue, true);
             }
-            if(commands.Count % 3 != 0)
+            if (commands.Count % 3 != 0)
                 page2.AddField("\u200b", "\u200b", true);
             page2.Color = Color.DarkTeal;
             page2.WithFooter("page 2/6");
@@ -99,22 +99,22 @@ namespace BotDiscord
 
             Pages.Add(5, page5);
 
-            EmbedBuilder page6 = new EmbedBuilder();
-            page6.WithTitle("Audio");
-            page6.WithDescription("Lancer des sons et de la musique. `Ne fonctionne plus`");
-            var audioCommands = modules.First(x => x.Name == "AudioModule").Commands;
-            foreach (CommandInfo command in modules.First(x => x.Name == "AudioModule").Commands)
-            {
-                string fieldValue = command.Summary ?? "no description";
-                fieldValue += $"{Environment.NewLine}\u200b";
-                page6.AddField(command.Name, fieldValue, true);
-            }
-            if (audioCommands.Count % 3 != 0)
-                page6.AddField("\u200b", "\u200b", true);
-            page6.Color = Color.DarkTeal;
-            page6.WithFooter("page 6/6");
+            //EmbedBuilder page6 = new EmbedBuilder();
+            //page6.WithTitle("Audio");
+            //page6.WithDescription("Lancer des sons et de la musique. `Ne fonctionne plus`");
+            //var audioCommands = modules.First(x => x.Name == "AudioModule").Commands;
+            //foreach (CommandInfo command in modules.First(x => x.Name == "AudioModule").Commands)
+            //{
+            //    string fieldValue = command.Summary ?? "no description";
+            //    fieldValue += $"{Environment.NewLine}\u200b";
+            //    page6.AddField(command.Name, fieldValue, true);
+            //}
+            //if (audioCommands.Count % 3 != 0)
+            //    page6.AddField("\u200b", "\u200b", true);
+            //page6.Color = Color.DarkTeal;
+            //page6.WithFooter("page 6/6");
 
-            Pages.Add(6, page6);
+            //Pages.Add(6, page6);
         }
 
         public EmbedBuilder GetCurrentPage()

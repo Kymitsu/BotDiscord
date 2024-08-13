@@ -10,7 +10,7 @@ namespace BotDiscord.RPG.Anima
         {
         }
 
-        public abstract DiceResult Roll(int temporaryBonus, Boolean destinFuneste);
+        public abstract DiceResult Roll(int temporaryBonus, bool destinFuneste);
         public abstract DiceResult FailRoll(int score);
     }
 }

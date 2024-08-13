@@ -1,4 +1,5 @@
-﻿using BotDiscord.RPG.Anima;
+﻿using BotDiscord.RPG;
+using BotDiscord.RPG.Anima;
 using BotDiscord.Services;
 using Discord;
 using Discord.Commands;
@@ -13,9 +14,16 @@ namespace BotDiscord.Modules
     [Summary("Anima")]
     public class AnimaModule : ModuleBase
     {
+        private readonly CharacterService _characterService;
+
+        public AnimaModule(CharacterService characterService)
+        {
+            _characterService = characterService;
+        }
+
         [Command("!a roll")]
         [Summary("Lance un Dé 100 avec jet ouvert `!a roll 15 vigilance`")]
-        public async Task AnimaRoll([Summary("Bonus à ajouter")]int num = 0, [Summary("Decription du lancé")]string desc = "")
+        public async Task AnimaRoll([Summary("Bonus à ajouter")] int num = 0, [Summary("Decription du lancé")] string desc = "")
         {
             await Context.Message.DeleteAsync();
             await Context.Channel.SendMessageAsync(Context.User.Mention
@@ -47,7 +55,7 @@ namespace BotDiscord.Modules
         [Summary("Lance les dés pour la stat passée en paramètre `!c r parade -30`")]
         public async Task Roll(params string[] s)
         {
-            AnimaCharacter character = CharacterRepository.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
+            AnimaCharacter character = _characterService.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
             if (character == null)
             {
                 await Context.Channel.SendMessageAsync("Error 404: Character not found or not loaded!");
@@ -107,7 +115,7 @@ namespace BotDiscord.Modules
         [Summary("Envoi en MP le statut de ton personnage")]
         public async Task Status()
         {
-            AnimaCharacter character = CharacterRepository.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
+            AnimaCharacter character = _characterService.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
             if (character == null)
             {
                 await Context.Channel.SendMessageAsync("Error 404: Character not found or not loaded!");
@@ -134,7 +142,7 @@ namespace BotDiscord.Modules
         [Summary("Réinitialise toutes les stat du personnage")]
         public async Task ResetCurrentStat()
         {
-            AnimaCharacter character = CharacterRepository.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
+            AnimaCharacter character = _characterService.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
             _ = Context.Message.DeleteAsync();
 
             character.CurrentHp = character.Hp;
@@ -153,7 +161,7 @@ namespace BotDiscord.Modules
         [Summary("Définit les HP actuels du personnage `!c hp 100` `!c hp -10` `!c hp reset`")]
         public async Task SetHp(string s)
         {
-            AnimaCharacter character = CharacterRepository.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
+            AnimaCharacter character = _characterService.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
             _ = Context.Message.DeleteAsync();
 
             if (s == "reset")
@@ -173,7 +181,7 @@ namespace BotDiscord.Modules
         [Summary("Définit les point de fatigue actuels du personnage `!c fatigue 6` `!c fatigue -1` `!c fatigue reset`")]
         public async Task SetFatigue(string s)
         {
-            AnimaCharacter character = CharacterRepository.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
+            AnimaCharacter character = _characterService.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
             _ = Context.Message.DeleteAsync();
 
             if (s == "reset")
@@ -193,7 +201,7 @@ namespace BotDiscord.Modules
         [Summary("Définit le Zéon actuel du personnage `!c zéon 500` `!c zéon -80` `!c zéon reset`")]
         public async Task SetZeon(string s)
         {
-            AnimaCharacter character = CharacterRepository.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
+            AnimaCharacter character = _characterService.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
             _ = Context.Message.DeleteAsync();
 
             if (s == "reset")
@@ -213,7 +221,7 @@ namespace BotDiscord.Modules
         [Summary("Définit les PPP actuels du personnage `!c ppp 4` `!c ppp +1` `!c ppp reset`")]
         public async Task SetPpp(string s)
         {
-            AnimaCharacter character = CharacterRepository.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
+            AnimaCharacter character = _characterService.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
             _ = Context.Message.DeleteAsync();
 
             if (s == "reset")
@@ -233,7 +241,7 @@ namespace BotDiscord.Modules
         [Summary("Définit le Ki actuels du personnage `!c ki 75` `!c ki -12` `!c ki reset`")]
         public async Task SetKi(string s)
         {
-            AnimaCharacter character = CharacterRepository.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
+            AnimaCharacter character = _characterService.FindCurrentByMention<AnimaCharacter>(Context.Message.Author.Mention);
             _ = Context.Message.DeleteAsync();
 
             if (s == "reset")

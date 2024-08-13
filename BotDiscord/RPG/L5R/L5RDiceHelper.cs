@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using BotDiscord.RPG;
+using Discord;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,13 +44,13 @@ namespace BotDiscord.RPG.L5R
             for (int i = 0; i < whiteDiceNum; i++)
             {
                 int roll = DiceHelper.SimpleRoll(12);
-                whiteDiceResult += $"<:{L5RDiceHelper.WhiteDiceMapping[roll]}:{GuildEmotes.FirstOrDefault(x => x.Name == L5RDiceHelper.WhiteDiceMapping[roll])?.Id}>";
+                whiteDiceResult += $"<:{WhiteDiceMapping[roll]}:{GuildEmotes.FirstOrDefault(x => x.Name == WhiteDiceMapping[roll])?.Id}>";
             }
             string blackDiceResult = "";
             for (int i = 0; i < blackDiceNum; i++)
             {
                 int roll = DiceHelper.SimpleRoll(6);
-                blackDiceResult += $"<:{L5RDiceHelper.BlackDiceMapping[roll]}:{GuildEmotes.FirstOrDefault(x => x.Name == L5RDiceHelper.BlackDiceMapping[roll])?.Id}>";
+                blackDiceResult += $"<:{BlackDiceMapping[roll]}:{GuildEmotes.FirstOrDefault(x => x.Name == BlackDiceMapping[roll])?.Id}>";
             }
 
             return whiteDiceResult + blackDiceResult;

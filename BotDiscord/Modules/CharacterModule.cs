@@ -1,4 +1,5 @@
-﻿using BotDiscord.RPG;
+﻿using BotDiscord;
+using BotDiscord.RPG;
 using BotDiscord.RPG.Anima;
 using BotDiscord.RPG.L5R;
 using BotDiscord.Services;
@@ -16,6 +17,13 @@ namespace BotDiscord.Modules
     [Summary("Personnage")]
     public class CharacterModule : ModuleBase
     {
+        private readonly CharacterService _characterService;
+
+        public CharacterModule(CharacterService characterService)
+        {
+            _characterService = characterService;
+        }
+
         [Command("!c upload")]
         [Summary("Charge les données d'un personnage depuis une feuille Excel")]
         public async Task Upload()
@@ -25,7 +33,7 @@ namespace BotDiscord.Modules
                 try
                 {
                     var msg = await Context.Channel.SendMessageAsync($"{Context.Message.Author.Mention} Téléchargement en cours...");
-                    await GenericTools.HandleFile(Context.Message.Attachments.First(), Context.Message.Author.Mention);
+                    await _characterService.HandleFile(Context.Message.Attachments.First(), Context.Message.Author.Mention);
                     await msg.ModifyAsync(x => x.Content = $"{Context.Message.Author.Mention} Personnage uploadé avec succès");
                 }
                 catch (Exception ex)
@@ -48,26 +56,26 @@ namespace BotDiscord.Modules
             {
                 var characterString = "```yaml" + Environment.NewLine;
 
-                var animaChars = CharacterRepository.Characters.OfType<AnimaCharacter>().Where(x => x.Player == Context.Message.Author.Mention);
+                var animaChars = _characterService.Characters.OfType<AnimaCharacter>().Where(x => x.Player == Context.Message.Author.Mention);
                 if (animaChars.Any())
                 {
                     characterString += "Anima:" + Environment.NewLine;
                     foreach (AnimaCharacter character in animaChars)
                     {
                         characterString += "   " + character.Name + " - LVL " + character.Level + (character.IsCurrent ? " (loaded)" : "") + Environment.NewLine;
-                    } 
+                    }
                 }
 
-                var lChars = CharacterRepository.Characters.OfType<L5RCharacter>().Where(x => x.Player == Context.Message.Author.Mention);
+                var lChars = _characterService.Characters.OfType<L5RCharacter>().Where(x => x.Player == Context.Message.Author.Mention);
                 if (lChars.Any())
                 {
                     characterString += "Legend of the five Rings:" + Environment.NewLine;
                     foreach (var character in lChars)
                     {
                         characterString += "   " + character.Name + " - " + character.Clan + (character.IsCurrent ? " (loaded)" : "") + Environment.NewLine;
-                    } 
+                    }
                 }
-                characterString += Environment.NewLine + "\u200b```";
+                characterString += "\u200b```";
 
                 await Context.Message.DeleteAsync();
                 await Context.Channel.SendMessageAsync("List of playable characters :" + Environment.NewLine + characterString);
@@ -77,15 +85,15 @@ namespace BotDiscord.Modules
                 PlayableCharacter character = null;
                 try
                 {
-                    CharacterRepository.Characters.Where(x => x.Player == Context.Message.Author.Mention).ToList().ForEach(x => x.IsCurrent = false);
-                    character = CharacterRepository.Find<PlayableCharacter>(Context.Message.Author.Mention, name);
+                    _characterService.Characters.Where(x => x.Player == Context.Message.Author.Mention).ToList().ForEach(x => x.IsCurrent = false);
+                    character = _characterService.Find<PlayableCharacter>(Context.Message.Author.Mention, name);
                     character.IsCurrent = true;
 
                     //await (Context.Message.Author as IGuildUser).ModifyAsync(x => x.Nickname = character.Name);
                 }
                 catch (InvalidOperationException ex)
                 {
-                    await Context.Channel.SendMessageAsync("Error 404: Character not found!");
+                    await Context.Channel.SendMessageAsync($"Error 404: Character \"{name}\" not found!");
                     throw;
                 }
                 //catch (Exception)
@@ -105,7 +113,7 @@ namespace BotDiscord.Modules
         {
             _ = Context.Message.DeleteAsync();
             string expr = string.Join(' ', s);
-            PlayableCharacter character = CharacterRepository.Find<PlayableCharacter>(Context.Message.Author.Mention, expr);
+            PlayableCharacter character = _characterService.Find<PlayableCharacter>(Context.Message.Author.Mention, expr);
             if (character == null)
             {
                 await Context.Channel.SendMessageAsync("Error 404: Character not found or currently loaded!");
@@ -114,7 +122,7 @@ namespace BotDiscord.Modules
 
             try
             {
-                CharacterRepository.DeleteExcelCharacter(character);
+                _characterService.DeleteExcelCharacter(character);
             }
             catch (Exception ex)
             {
@@ -128,7 +136,7 @@ namespace BotDiscord.Modules
         [Alias("!c img", "!c Image")]
         public async Task SetCharImage()
         {
-            PlayableCharacter character = CharacterRepository.FindCurrentByMention<PlayableCharacter>(Context.Message.Author.Mention);
+            PlayableCharacter character = _characterService.FindCurrentByMention<PlayableCharacter>(Context.Message.Author.Mention);
             if (character == null)
             {
                 _ = Context.Message.DeleteAsync();
@@ -153,7 +161,7 @@ namespace BotDiscord.Modules
         [Summary("Informations sur une statistique ou compétence du perso chargé `!c info attaque`")]
         public async Task Info(params string[] s)
         {
-            PlayableCharacter character = CharacterRepository.FindCurrentByMention<PlayableCharacter>(Context.Message.Author.Mention);
+            PlayableCharacter character = _characterService.FindCurrentByMention<PlayableCharacter>(Context.Message.Author.Mention);
             if (character == null)
             {
                 await Context.Channel.SendMessageAsync("Error 404: Character not found or not loaded!");

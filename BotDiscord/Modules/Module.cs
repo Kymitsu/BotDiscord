@@ -7,20 +7,30 @@ using System.Reflection;
 using System.Linq;
 using Discord;
 using BotDiscord.RPG;
-using BotDiscord.RPG.Anima;
+using BotDiscord;
 using BotDiscord.Services;
+using BotDiscord.RPG.Anima;
 
 namespace BotDiscord.Modules
 {
     [Summary("Général")]
-    public class Module : ModuleBase
+    public class Module : ModuleBase<SocketCommandContext>
     {
         private CommandService _commandService;
+        private readonly CharacterService _characterService;
         private static DateTime _sessionStart = DateTime.MinValue;
 
-        public Module(CommandService commandService)
+        public Module(CommandService commandService, CharacterService charService)
         {
             _commandService = commandService;
+            _characterService = charService;
+        }
+
+        [Command("!test")]
+        public async Task TestCommand()
+        {
+            
+            await Context.Channel.SendMessageAsync($"{Context.User.Mention} Test command");
         }
 
         [Command("!")]
@@ -33,9 +43,9 @@ namespace BotDiscord.Modules
             int.TryParse(values[0], out int number);
             int.TryParse(values[1], out int size);
             int bonus = 0;
-            if (values.Count() >2)
+            if (values.Count() > 2)
             {
-                int.TryParse(values[2], out bonus); 
+                int.TryParse(values[2], out bonus);
             }
 
             List<int> results = new List<int>();
@@ -62,7 +72,7 @@ namespace BotDiscord.Modules
             if (_sessionStart == DateTime.MinValue)
             {
                 _sessionStart = DateTime.Now;
-                await Context.Channel.SendMessageAsync($"> **Début de séance** {Environment.NewLine}_N'oubliez pas de charger votre personnage!_"); 
+                await Context.Channel.SendMessageAsync($"> **Début de séance** {Environment.NewLine}_N'oubliez pas de charger votre personnage!_");
             }
             else
             {
@@ -83,9 +93,9 @@ namespace BotDiscord.Modules
                 await Context.Channel.SendMessageAsync($">>> **Fin de séance**{Environment.NewLine}Durée de la séance: {ellapsedTime.Hours}h {ellapsedTime.Minutes}m");
                 _sessionStart = DateTime.MinValue;
 
-                await Task.Run(CharacterRepository.SaveLoadedCharacters);
+                await Task.Run(_characterService.SaveLoadedCharacters);
 
-                CharacterRepository.UnloadCharacters(); 
+                _characterService.UnloadCharacters();
             }
             else
             {
@@ -98,7 +108,7 @@ namespace BotDiscord.Modules
         public async Task SessionStats()
         {
             await Context.Message.DeleteAsync();
-            List<AnimaCharacter> characters = CharacterRepository.Characters.OfType<AnimaCharacter>().Where(x => x.IsCurrent).ToList();
+            List<AnimaCharacter> characters = _characterService.Characters.OfType<AnimaCharacter>().Where(x => x.IsCurrent).ToList();
 
             Dictionary<string, List<DiceResult>> allStatistics = new Dictionary<string, List<DiceResult>>();
             allStatistics = characters.SelectMany(x => x.RollStatistics)
@@ -112,8 +122,8 @@ namespace BotDiscord.Modules
             {
                 string stat = kvp.Key;
                 int rolls = kvp.Value.Count;
-                int mean = (int)(kvp.Value.Sum(x => x.DiceResults.Sum()) /kvp.Value.Count);
-                int meanPerDice = (int)(kvp.Value.Sum(x => x.DiceResults.Sum()) / kvp.Value.Sum(x => x.DiceResults.Count));
+                int mean = kvp.Value.Sum(x => x.DiceResults.Sum()) / kvp.Value.Count;
+                int meanPerDice = kvp.Value.Sum(x => x.DiceResults.Sum()) / kvp.Value.Sum(x => x.DiceResults.Count);
                 sb.AppendLine(string.Format($"|{{0,-{longestStat}}}|{{1,13}}|{{2,10}}|{{3,10}}|", stat, rolls, mean, meanPerDice));
             }
 
@@ -123,7 +133,7 @@ namespace BotDiscord.Modules
 
         [Command("!r")]
         [Summary("Lance un dé.`!r 10 3`")]
-        public async Task Roll([Summary("Taille du Dé")]int dieSize, [Summary("Bonus à ajouter")]int bonus = 0)
+        public async Task Roll([Summary("Taille du Dé")] int dieSize, [Summary("Bonus à ajouter")] int bonus = 0)
         {
             await Context.Message.DeleteAsync();
             await Context.Channel.SendMessageAsync(Context.User.Mention + " rolled : " + DiceHelper.SimpleRoll(dieSize, bonus).ResultText);
@@ -140,13 +150,13 @@ namespace BotDiscord.Modules
 
         [Command("!purge"), Summary("Purge un Channel (Admin uniquement)")]
         [RequireUserPermission(GuildPermission.Administrator)]
-        public async Task Purge([Summary("Nb de msg à suppr")]int amount)
+        public async Task Purge([Summary("Nb de msg à suppr")] int amount)
         {
-            var messages = this.Context.Channel.GetMessagesAsync((int)amount + 1).Flatten();
-            _ = messages.ForEachAsync(x => this.Context.Channel.DeleteMessageAsync(x.Id));
+            var messages = Context.Channel.GetMessagesAsync(amount + 1).Flatten();
+            _ = messages.ForEachAsync(x => Context.Channel.DeleteMessageAsync(x.Id));
 
             const int delay = 5000;
-            var m = await this.ReplyAsync($"Deleting messages... _This message will be deleted in {delay / 1000} seconds._");
+            var m = await ReplyAsync($"Deleting messages... _This message will be deleted in {delay / 1000} seconds._");
             await Task.Delay(delay);
             await m.DeleteAsync();
         }

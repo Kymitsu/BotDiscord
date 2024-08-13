@@ -1,4 +1,6 @@
-﻿using OfficeOpenXml;
+﻿using BotDiscord;
+using BotDiscord.RPG;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,7 +68,7 @@ namespace BotDiscord.RPG.L5R
             L5RStat stat;
             try
             {
-                stat = this.AllStats.FindByRawStat(rawStat);
+                stat = AllStats.FindByRawStat(rawStat);
             }
             catch (Exception)
             {
@@ -96,7 +98,7 @@ namespace BotDiscord.RPG.L5R
         public override string KeywordsHelp()
         {
             string helpText = "";
-            foreach (var groupedStat in this.AllStats.GroupBy<L5RStat, string>(x => x.Group).Select(grp => grp.ToList()))
+            foreach (var groupedStat in AllStats.GroupBy(x => x.Group).Select(grp => grp.ToList()))
             {
                 helpText += groupedStat.First().Group + " :" + Environment.NewLine;
                 helpText += "```";

@@ -1,16 +1,16 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using BotDiscord.Services;
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.IO;
 using BotDiscord.RPG;
-using BotDiscord.RPG.Anima;
+using BotDiscord.Services;
 
-namespace BotDiscord
+namespace BotDiscordConsole
 {
     class Program
     {
@@ -21,14 +21,21 @@ namespace BotDiscord
 
         public async Task MainAsync()
         {
-            CharacterRepository.LoadFromCurrentDirectory();
-
-            _client = new DiscordSocketClient();
-            _client.Log += Log;
+            var socketConfig = new DiscordSocketConfig()
+            {
+                GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent
+            };
+            _client = new DiscordSocketClient(socketConfig);
+            
 
             _config = BuildConfig();
+
             var services = ConfigureServices();
             await services.GetRequiredService<CommandHandlingService>().InitializeAsync(services);
+            var test2 = services.GetRequiredService<LoggingService>();
+
+            services.GetRequiredService<CharacterService>().LoadFromCurrentDirectory();
+            
             await _client.LoginAsync(TokenType.Bot, _config["token"]);
             await _client.StartAsync();
 
@@ -44,11 +51,13 @@ namespace BotDiscord
                 .AddSingleton<CommandHandlingService>()
                 .AddSingleton<AudioService>()
                 // Logging
-                //.AddLogging()
-                //.AddSingleton<LogService>()
+                .AddLogging()
+                .AddSingleton<ILoggerProvider, ConsoleLoggerProvider>()
+                .AddSingleton<LoggingService>()
                 // Extra
                 .AddSingleton(_config)
                 // Add additional services here...
+                .AddSingleton<CharacterService>()
                 .BuildServiceProvider();
         }
 
@@ -58,12 +67,6 @@ namespace BotDiscord
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("config.json")
                 .Build();
-        }
-
-        private Task Log(LogMessage msg)
-        {
-            Console.WriteLine(msg.ToString());
-            return Task.CompletedTask;
         }
     }
 }

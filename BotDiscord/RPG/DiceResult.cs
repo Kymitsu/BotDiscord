@@ -26,7 +26,7 @@ namespace BotDiscord.RPG
 
         private void BuildResultText()
         {
-            if(DiceResults.Count > 1)
+            if (DiceResults.Count > 1)
                 ResultText = $"`({string.Join(" + ", DiceResults)}) + {string.Join(" + ", _bonus)} = {Total}`";
             else
                 ResultText = $"`{string.Join(" + ", DiceResults)} + {string.Join(" + ", _bonus)} = {Total}`";

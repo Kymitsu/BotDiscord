@@ -68,7 +68,7 @@ namespace BotDiscord.Services
         public async Task SendAudioAsync(IGuild guild, IMessageChannel channel, string file)
         {
             Playlist.Enqueue(file);
-            
+
             IAudioClient client;
             if (ConnectedChannels.TryGetValue(guild.Id, out client))
             {
@@ -91,7 +91,7 @@ namespace BotDiscord.Services
                         try
                         {
                             //await ffmpeg.StandardOutput.BaseStream.CopyToAsync(stream, 81920, cancellationToken.Token);
-                            
+
                             int blockSize = 3840; // The size of bytes to read per frame; 1920 for mono
                             byte[] buffer = new byte[blockSize];
                             byte[] gainBuffer = new byte[blockSize];
@@ -115,7 +115,7 @@ namespace BotDiscord.Services
                                 {
 
                                     // convert to 16-bit
-                                    short sample = (short)((buffer[i * 2 + 1] << 8) | buffer[i * 2]);
+                                    short sample = (short)(buffer[i * 2 + 1] << 8 | buffer[i * 2]);
 
                                     // scale
                                     if (!IsMute)

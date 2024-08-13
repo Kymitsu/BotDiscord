@@ -8,7 +8,7 @@ namespace BotDiscord.RPG.Anima
     {
         private static Random random = new Random();
 
-        public static DiceResult AnimaRoll(Boolean destinFuneste, params int[] bonus)
+        public static DiceResult AnimaRoll(bool destinFuneste, params int[] bonus)
         {
             if (destinFuneste == true)
                 return AnimaRoll(bonus, new List<int>(), 101);
@@ -47,7 +47,7 @@ namespace BotDiscord.RPG.Anima
             return new DiceResult(new List<int> { result }, bonus);
         }
 
-        public static int CheckFailValue(Boolean luck, Boolean unluck, int bonus)
+        public static int CheckFailValue(bool luck, bool unluck, int bonus)
         {
             int failValue = 3;
             if (luck == true) failValue -= 1;

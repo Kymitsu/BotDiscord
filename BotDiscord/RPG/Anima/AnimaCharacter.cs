@@ -1,4 +1,6 @@
-﻿using OfficeOpenXml;
+﻿using BotDiscord;
+using BotDiscord.RPG;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,7 +12,7 @@ namespace BotDiscord.RPG.Anima
     public class AnimaCharacter : PlayableCharacter
     {
         public static List<string> StatGroups = new List<string>() { "Caractéristique", "Résistance", "Champs principal", "Champs secondaire" };
-       
+
 
         public AnimaCharacter(ExcelWorksheet excelWorksheet, string player)
         {
@@ -58,7 +60,7 @@ namespace BotDiscord.RPG.Anima
             {
                 BaseStats.Add(new Roll10Stat(StatGroups[0], cell.Text, Convert.ToInt32(cell.Offset(0, 9).Value)));
             }
-            
+
             //Resistances
             foreach (var cell in excelWorksheet.Cells[32, 2, 36, 2])
             {
@@ -76,7 +78,7 @@ namespace BotDiscord.RPG.Anima
             {
                 BattleStats.Add(new Roll100Stat(StatGroups[2], cell.Text, Convert.ToInt32(cell.Offset(0, 27).Value)));
             }
-            
+
             BattleStats.Add(new Roll100Stat(StatGroups[2], excelWorksheet.Cells["B71"].Text, Convert.ToInt32(excelWorksheet.Cells["AC71"].Value)));
             try
             {//TODO pourquoi ????
@@ -84,11 +86,11 @@ namespace BotDiscord.RPG.Anima
             }
             catch (Exception ex)
             {
-                
+
             }
 
             //Secondary stats
-            foreach (var cell in excelWorksheet.Cells[75,2,143,2])
+            foreach (var cell in excelWorksheet.Cells[75, 2, 143, 2])
             {
                 if (!cell.Style.Font.Bold)
                 {
@@ -111,23 +113,23 @@ namespace BotDiscord.RPG.Anima
             AnimaRollableStat rollableStat;
             try
             {
-                rollableStat = this.AllStats.FindByRawStat(rawStat);
+                rollableStat = AllStats.FindByRawStat(rawStat);
             }
             catch (Exception)
             {
                 return "Error 404: Stat not found (" + rawStat + ")";
             }
 
-            DiceResult resultDice = rollableStat.Roll(bonus, this.DestinFuneste);
-            this.AddRollStatistics(rollableStat, resultDice);
+            DiceResult resultDice = rollableStat.Roll(bonus, DestinFuneste);
+            AddRollStatistics(rollableStat, resultDice);
 
             if (rollableStat is Roll100Stat)
             {
                 string bonusSymbol = bonus > 0 ? "+" : "";
-                resultMsg = $"rolled : {resultDice.ResultText} {rollableStat.Name}{(bonus != 0 ? bonusSymbol + bonus: "" )}";
+                resultMsg = $"rolled : {resultDice.ResultText} {rollableStat.Name} {(bonus != 0 ? bonusSymbol + bonus : "")}";
 
                 // test si le jet et une maladress
-                int failValue = AnimaDiceHelper.CheckFailValue(this.IsLucky, this.IsUnlucky, rollableStat.Value);
+                int failValue = AnimaDiceHelper.CheckFailValue(IsLucky, IsUnlucky, rollableStat.Value);
                 if (resultDice.DiceResults.Last() <= failValue)
                 {
                     // si oui lance le jet de maladress
@@ -138,13 +140,13 @@ namespace BotDiscord.RPG.Anima
                     resultMsg += Environment.NewLine;
                     resultMsg += string.Format("maladress : {0} {1}",
                         resultDice.ResultText,
-                        (!string.IsNullOrEmpty(rollableStat.Name) ? rollableStat.Name : ""));
+                        !string.IsNullOrEmpty(rollableStat.Name) ? rollableStat.Name : "");
                 }
             }
-            else if(rollableStat is ResistanceStat)
+            else if (rollableStat is ResistanceStat)
             {
                 string bonusSymbol = bonus > 0 ? "+" : "";
-                resultMsg = $"rolled : {resultDice.ResultText} {rollableStat.Name}{(bonus != 0 ? bonusSymbol + bonus : "")}";
+                resultMsg = $"rolled : {resultDice.ResultText} {rollableStat.Name} {(bonus != 0 ? bonusSymbol + bonus : "")}";
             }
             else
             {
@@ -156,7 +158,7 @@ namespace BotDiscord.RPG.Anima
                 resultMsg = string.Format("rolled : {0} against {1} {2}, {3} by {4}",
                     resultDice.DiceResults.First(),
                     rollableStat.Value + bonus,
-                    (!string.IsNullOrEmpty(rollableStat.Name) ? rollableStat.Name : ""),
+                    !string.IsNullOrEmpty(rollableStat.Name) ? rollableStat.Name : "",
                     rollOutcome,
                     resultDice.DiceResults.First() - (rollableStat.Value + bonus));
             }
@@ -167,7 +169,7 @@ namespace BotDiscord.RPG.Anima
         public override string KeywordsHelp()
         {
             string helpText = "";
-            foreach (string group in AnimaCharacter.StatGroups)
+            foreach (string group in StatGroups)
             {
                 helpText += group + " :" + Environment.NewLine;
                 helpText += "```";
@@ -217,11 +219,11 @@ namespace BotDiscord.RPG.Anima
         public int MagicLevel { get; set; }
         public int PppFree { get; set; }
         public int CurrentPpp { get; set; }
-        public Boolean IsLucky { get; set; }
-        public Boolean IsUnlucky { get; set; }
-        public Boolean DestinFuneste { get; set; }
+        public bool IsLucky { get; set; }
+        public bool IsUnlucky { get; set; }
+        public bool DestinFuneste { get; set; }
 
-        public new List<AnimaRollableStat> AllStats { get { return base.AllStats.Cast<AnimaRollableStat>().ToList(); }}
+        public new List<AnimaRollableStat> AllStats { get { return base.AllStats.Cast<AnimaRollableStat>().ToList(); } }
         public List<Roll10Stat> BaseStats { get; set; } = new List<Roll10Stat>();
         public List<ResistanceStat> Resistances { get; set; } = new List<ResistanceStat>();
         public List<Roll100Stat> BattleStats { get; set; } = new List<Roll100Stat>();

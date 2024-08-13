@@ -12,7 +12,7 @@ namespace BotDiscord.RPG.L5R
 
         public string Roll(int ring)
         {
-            return L5RDiceHelper.Roll(this.Value, ring);
+            return L5RDiceHelper.Roll(Value, ring);
         }
     }
 }

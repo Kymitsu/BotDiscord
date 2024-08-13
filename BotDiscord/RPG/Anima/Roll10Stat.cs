@@ -10,7 +10,7 @@ namespace BotDiscord.RPG.Anima
         {
         }
 
-        public override DiceResult Roll(int temporaryBonus, Boolean destinFuneste)
+        public override DiceResult Roll(int temporaryBonus, bool destinFuneste)
         {
             return AnimaDiceHelper.BaseStatRoll(Value, temporaryBonus);
         }
