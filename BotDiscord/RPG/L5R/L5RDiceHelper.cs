@@ -15,27 +15,31 @@ namespace BotDiscord.RPG.L5R
 
         static L5RDiceHelper()
         {
-            WhiteDiceMapping = new Dictionary<int, string>();
-            WhiteDiceMapping.Add(1, "blanc_1_2");
-            WhiteDiceMapping.Add(2, "blanc_1_2");
-            WhiteDiceMapping.Add(3, "blanc_345");
-            WhiteDiceMapping.Add(4, "blanc_345");
-            WhiteDiceMapping.Add(5, "blanc_345");
-            WhiteDiceMapping.Add(6, "blanc_67");
-            WhiteDiceMapping.Add(7, "blanc_67");
-            WhiteDiceMapping.Add(8, "blanc_89");
-            WhiteDiceMapping.Add(9, "blanc_89");
-            WhiteDiceMapping.Add(10, "blanc_10");
-            WhiteDiceMapping.Add(11, "blanc_11");
-            WhiteDiceMapping.Add(12, "blanc_12");
+            WhiteDiceMapping = new Dictionary<int, string>
+            {
+                { 1, "blanc_1_2" },
+                { 2, "blanc_1_2" },
+                { 3, "blanc_345" },
+                { 4, "blanc_345" },
+                { 5, "blanc_345" },
+                { 6, "blanc_67" },
+                { 7, "blanc_67" },
+                { 8, "blanc_89" },
+                { 9, "blanc_89" },
+                { 10, "blanc_10" },
+                { 11, "blanc_11" },
+                { 12, "blanc_12" }
+            };
 
-            BlackDiceMapping = new Dictionary<int, string>();
-            BlackDiceMapping.Add(1, "noir_1");
-            BlackDiceMapping.Add(2, "noir_2");
-            BlackDiceMapping.Add(3, "noir_3");
-            BlackDiceMapping.Add(4, "noir_4");
-            BlackDiceMapping.Add(5, "noir_5");
-            BlackDiceMapping.Add(6, "noir_6");
+            BlackDiceMapping = new Dictionary<int, string>
+            {
+                { 1, "noir_1" },
+                { 2, "noir_2" },
+                { 3, "noir_3" },
+                { 4, "noir_4" },
+                { 5, "noir_5" },
+                { 6, "noir_6" }
+            };
         }
 
         public static string Roll(int whiteDiceNum, int blackDiceNum)

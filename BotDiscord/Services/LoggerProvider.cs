@@ -6,15 +6,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BotDiscordConsole
+namespace BotDiscord.Services
 {
-    internal class ConsoleLoggerProvider : ILoggerProvider
+    public class LoggerProvider <T> : ILoggerProvider where T : ILogger
     {
-        private readonly ConcurrentDictionary<string, ConsoleLogger> _loggers = new();
+        private readonly ConcurrentDictionary<string, T> _loggers = new();
 
         public ILogger CreateLogger(string categoryName)
         {
-            return _loggers.GetOrAdd(categoryName, new ConsoleLogger(categoryName));
+            return _loggers.GetOrAdd(categoryName, (T)Activator.CreateInstance(typeof(T), categoryName));
         }
 
         public void Dispose()

@@ -72,8 +72,8 @@ namespace BotDiscord.RPG.Anima
             BattleStats.Add(new Roll100Stat(StatGroups[2], excelWorksheet.Cells["B52"].Text, Convert.ToInt32(excelWorksheet.Cells["AC52"].Value)));
             BattleStats.Add(new Roll100Stat(StatGroups[2], excelWorksheet.Cells["B53"].Text, Convert.ToInt32(excelWorksheet.Cells["AC53"].Value)));
             BattleStats.Add(new Roll100Stat(StatGroups[2], excelWorksheet.Cells["B54"].Text, Convert.ToInt32(excelWorksheet.Cells["AC54"].Value)));
-            Roll100Stat defence = BattleStats.Where(x => x.Name == "Esquive" || x.Name == "Parade").OrderByDescending(x => x.Value).First();
-            BattleStats.Add(new Roll100Stat(StatGroups[2], $"Défense : {defence.Name}", defence.Value));
+            //Roll100Stat defence = BattleStats.Where(x => x.Name == "Esquive" || x.Name == "Parade").OrderByDescending(x => x.Value).First();
+            //BattleStats.Add(new Roll100Stat(StatGroups[2], $"Défense : {defence.Name}", defence.Value));
             foreach (var cell in excelWorksheet.Cells[64, 2, 68, 2])
             {
                 BattleStats.Add(new Roll100Stat(StatGroups[2], cell.Text, Convert.ToInt32(cell.Offset(0, 27).Value)));
@@ -81,7 +81,7 @@ namespace BotDiscord.RPG.Anima
 
             BattleStats.Add(new Roll100Stat(StatGroups[2], excelWorksheet.Cells["B71"].Text, Convert.ToInt32(excelWorksheet.Cells["AC71"].Value)));
             try
-            {//TODO pourquoi ????
+            {//TODO pourquoi ???? talent psy
                 BattleStats.Add(new Roll100Stat(StatGroups[2], excelWorksheet.Cells["Q23"].Text, Convert.ToInt32(excelWorksheet.Cells["Q24"].Value)));
             }
             catch (Exception ex)
@@ -94,7 +94,15 @@ namespace BotDiscord.RPG.Anima
             {
                 if (!cell.Style.Font.Bold)
                 {
-                    SecondaryStats.Add(new Roll100Stat(StatGroups[3], cell.Text, Convert.ToInt32(cell.Offset(0, 27).Value)));
+                    if (!cell.Text.Contains('('))
+                    {
+                        SecondaryStats.Add(new Roll100Stat(StatGroups[3], cell.Text, Convert.ToInt32(cell.Offset(0, 27).Value)));
+                    }
+                    else
+                    {
+                        if(!string.IsNullOrEmpty(cell.Offset(0, 10).Text))
+                            SecondaryStats.Add(new Roll100Stat(StatGroups[3], cell.Text, Convert.ToInt32(cell.Offset(0, 27).Value)));
+                    }
                 }
             }
             SecondaryStats.Add(new Roll100Stat(StatGroups[3], excelWorksheet.Cells["G34"].Text, Convert.ToInt32(excelWorksheet.Cells["N34"].Value)));
@@ -151,16 +159,18 @@ namespace BotDiscord.RPG.Anima
             else
             {
                 string rollOutcome = null;
-                if (resultDice.DiceResults.First() - (rollableStat.Value + bonus) < 0)
+                int outcome = resultDice.DiceResults.First() - (rollableStat.Value + bonus);
+                if (outcome < 0)
                     rollOutcome = "won";
-                else rollOutcome = "failed";
+                else 
+                    rollOutcome = "failed";
 
                 resultMsg = string.Format("rolled : {0} against {1} {2}, {3} by {4}",
                     resultDice.DiceResults.First(),
                     rollableStat.Value + bonus,
-                    !string.IsNullOrEmpty(rollableStat.Name) ? rollableStat.Name : "",
+                    rollableStat.Name,
                     rollOutcome,
-                    resultDice.DiceResults.First() - (rollableStat.Value + bonus));
+                    Math.Abs(outcome));
             }
 
             return resultMsg;
@@ -182,13 +192,13 @@ namespace BotDiscord.RPG.Anima
 
         private void AddRollStatistics(RollableStat stat, DiceResult dice)
         {
-            string statName = stat.Name.Replace(" ", "").Replace("Défense:", "");
-            if (!RollStatistics.ContainsKey(statName))
+            //string statName = stat.Name.Replace(" ", "").Replace("Défense:", "");
+            if (!RollStatistics.ContainsKey(stat))
             {
-                RollStatistics.Add(statName, new List<DiceResult>());
+                RollStatistics.Add(stat, new List<DiceResult>());
             }
 
-            RollStatistics[statName].Add(dice);
+            RollStatistics[stat].Add(dice);
         }
 
 
@@ -228,7 +238,7 @@ namespace BotDiscord.RPG.Anima
         public List<ResistanceStat> Resistances { get; set; } = new List<ResistanceStat>();
         public List<Roll100Stat> BattleStats { get; set; } = new List<Roll100Stat>();
         public List<Roll100Stat> SecondaryStats { get; set; } = new List<Roll100Stat>();
-        public Dictionary<string, List<DiceResult>> RollStatistics { get; set; } = new Dictionary<string, List<DiceResult>>();
+        public Dictionary<RollableStat, List<DiceResult>> RollStatistics { get; set; } = new Dictionary<RollableStat, List<DiceResult>>();
 
         #endregion
     }

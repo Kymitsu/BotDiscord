@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace BotDiscord.RPG
 {
-    public abstract class RollableStat
+    public abstract class RollableStat : IEquatable<RollableStat>
     {
         private static XmlDocument xmlAliases = null;
 
@@ -47,6 +47,21 @@ namespace BotDiscord.RPG
         public override string ToString()
         {
             return string.Format("<{0}, {1}>", Name, Value);
+        }
+
+        public bool Equals(RollableStat? other)
+        {
+            return other != null && other.Name == this.Name;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as RollableStat);
+        }
+
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode();
         }
 
         public string Group { get; set; }

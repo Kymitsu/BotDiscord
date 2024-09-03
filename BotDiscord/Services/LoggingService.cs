@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -10,12 +11,13 @@ namespace BotDiscord.Services
     {
         private readonly ILogger _logger;
 
-        public LoggingService(IServiceProvider provider, DiscordSocketClient discord, CommandService commands)
+        public LoggingService(IServiceProvider provider, DiscordSocketClient discord, CommandService commands, InteractionService interactionService)
         {
             _logger = provider.GetRequiredService<ILogger<LoggingService>>();
             
             discord.Log += LogAsync;
             commands.Log += LogAsync;
+            interactionService.Log += LogAsync;
         }
         public Task LogAsync(LogMessage message)
         {

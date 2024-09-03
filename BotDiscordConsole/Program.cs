@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System.IO;
 using BotDiscord.RPG;
 using BotDiscord.Services;
+using Discord.Interactions;
 
 namespace BotDiscordConsole
 {
@@ -17,6 +18,7 @@ namespace BotDiscordConsole
         static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
 
         private DiscordSocketClient _client;
+        private IServiceProvider _servicesProvider;
         private IConfiguration _config;
 
         public async Task MainAsync()
@@ -30,16 +32,26 @@ namespace BotDiscordConsole
 
             _config = BuildConfig();
 
-            var services = ConfigureServices();
-            await services.GetRequiredService<CommandHandlingService>().InitializeAsync(services);
-            var test2 = services.GetRequiredService<LoggingService>();
+            _servicesProvider = ConfigureServices();
+            var init = _servicesProvider.GetRequiredService<CommandHandlingService>().InitializeAsync(_servicesProvider);
+            var init2 = _servicesProvider.GetRequiredService<SlashCommandHandlingService>().IntialyzeAsync();
+            var test2 = _servicesProvider.GetRequiredService<LoggingService>();
 
-            services.GetRequiredService<CharacterService>().LoadFromCurrentDirectory();
+            _servicesProvider.GetRequiredService<CharacterService>().LoadFromCurrentDirectory();
+            
             
             await _client.LoginAsync(TokenType.Bot, _config["token"]);
             await _client.StartAsync();
 
+            _client.Ready += Client_Ready;
+
             await Task.Delay(-1);
+        }
+
+        private async Task Client_Ready()
+        {
+            await _servicesProvider.GetRequiredService<SlashCommandHandlingService>().RegisterCommands();
+
         }
 
         private IServiceProvider ConfigureServices()
@@ -49,10 +61,13 @@ namespace BotDiscordConsole
                 .AddSingleton(_client)
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
+                .AddSingleton<InteractionService>(new InteractionService(_client, new InteractionServiceConfig() { DefaultRunMode = Discord.Interactions.RunMode.Async}))
+                .AddSingleton<StatAutocompleteHandler>()
+                .AddSingleton<SlashCommandHandlingService>()
                 .AddSingleton<AudioService>()
                 // Logging
                 .AddLogging()
-                .AddSingleton<ILoggerProvider, ConsoleLoggerProvider>()
+                .AddSingleton<ILoggerProvider, LoggerProvider<ConsoleLogger>>()
                 .AddSingleton<LoggingService>()
                 // Extra
                 .AddSingleton(_config)

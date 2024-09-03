@@ -26,7 +26,7 @@ namespace BotDiscord
             //page1.AddField("Audio", $"Lancer des sons et de la musique. `Ne fonctionne plus`{Environment.NewLine}\u200b", true);
             page1.AddField("\u200b", "\u200b", true);//field vide pour que ça soit plus jolie
             page1.Color = Color.DarkTeal;
-            page1.WithFooter("page 1/6");
+            
 
             Pages.Add(1, page1);
 
@@ -115,6 +115,8 @@ namespace BotDiscord
             //page6.WithFooter("page 6/6");
 
             //Pages.Add(6, page6);
+
+            page1.WithFooter($"page 1/{Pages.Count}");
         }
 
         public EmbedBuilder GetCurrentPage()

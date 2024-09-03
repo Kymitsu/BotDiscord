@@ -21,16 +21,16 @@ namespace BotDiscord.RPG.Anima
             {
                 if (Name == "Initiative")
                 {
-                    temp.Add(Value);
+                    //temp.Add(Value);
                     switch (score)
                     {
                         case 1:
-                            return new DiceResult(temp, -125);
+                            return new DiceResult(temp, Value, -125);
                         case 2:
-                            return new DiceResult(temp, -100);
+                            return new DiceResult(temp, Value, -100);
                         // default is for 3 and more as fail result
                         default:
-                            return new DiceResult(temp, -75);
+                            return new DiceResult(temp, Value, -75);
                     }
                 }
                 else if (Name == "Attaque")
@@ -51,19 +51,19 @@ namespace BotDiscord.RPG.Anima
                 }
                 else
                 {
-                    temp.Add(Value);
+                    //temp.Add(Value);
                     switch (score)
                     {
                         case 1:
                             temp.Add(-DiceHelper.SimpleRoll(100));
-                            return new DiceResult(temp, -15);
+                            return new DiceResult(temp, Value, -15);
                         case 2:
                             temp.Add(-DiceHelper.SimpleRoll(100));
-                            return new DiceResult(temp, 0);
+                            return new DiceResult(temp, Value, 0);
                         // default is for 3 and more as fail result
                         default:
                             temp.Add(-DiceHelper.SimpleRoll(100));
-                            return new DiceResult(temp, +15);
+                            return new DiceResult(temp, Value, +15);
                     }
                 }
             }

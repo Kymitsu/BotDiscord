@@ -26,12 +26,11 @@ namespace BotDiscord.Services
         public CharacterService(IServiceProvider provider) 
         {
             _logger = provider.GetRequiredService<ILogger<CharacterService>>();
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         }
 
         public void LoadFromCurrentDirectory()
         {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
             Stopwatch sw = new Stopwatch();
             sw.Start();
             string[] allFiles = Directory.GetFiles(savePath, "@*");
@@ -69,10 +68,11 @@ namespace BotDiscord.Services
             _logger.LogInformation($"{DateTime.Now.ToString("HH:mm:ss", CultureInfo.CurrentCulture)} All characters loaded in : {sw.ElapsedMilliseconds}ms");
         }
 
-        public async Task HandleFile(IAttachment attachment, string mention)
+        public async Task<PlayableCharacter> HandleFile(IAttachment attachment, string mention)
         {
             if (Path.GetExtension(attachment.Filename) != ".xlsx") throw new ArgumentException("Format de fichier incorrect.");
 
+            PlayableCharacter character = null;
             using (HttpClient hclient = new HttpClient())
             {
                 Stream stream;
@@ -95,7 +95,7 @@ namespace BotDiscord.Services
                 stream.CopyTo(memoryStream);
                 using (ExcelPackage package = new ExcelPackage(memoryStream))
                 {
-                    PlayableCharacter character = null;
+                    
                     ExcelWorkbook workbook = package.Workbook;
                     ExcelWorksheet worksheet = workbook.Worksheets["Feuille de personnage"];
                     if (worksheet != null)//Fiche de perso anima
@@ -108,26 +108,41 @@ namespace BotDiscord.Services
                         character = new L5RCharacter(worksheet, mention);
                     }
 
-                    int charIndex = Characters.FindIndex(x => x.Player == mention && x.Name == character.Name);
-
-                    if (charIndex == -1)
+                    if (!string.IsNullOrWhiteSpace(character.Name))
                     {
-                        Characters.Add(character);
-                    }
-                    else
-                    {
-                        Characters[charIndex] = character;
-                    }
+                        int charIndex = Characters.FindIndex(x => x.Player == mention && x.Name == character.Name);
 
-                    SaveExcelCharacter(package, mention, character.Name);
+                        if (charIndex == -1)
+                        {
+                            Characters.Add(character);
+                        }
+                        else
+                        {
+                            //TODO: get Current stat before overriding char
+                            if (character is AnimaCharacter)
+                            {
+                                (character as AnimaCharacter).CurrentHp = (Characters[charIndex] as AnimaCharacter).CurrentHp;
+                                (character as AnimaCharacter).CurrentFatigue = (Characters[charIndex] as AnimaCharacter).CurrentFatigue;
+                                (character as AnimaCharacter).CurrentZeon = (Characters[charIndex] as AnimaCharacter).CurrentZeon;
+                                (character as AnimaCharacter).CurrentPpp = (Characters[charIndex] as AnimaCharacter).CurrentPpp;
+                                (character as AnimaCharacter).CurrentKi = (Characters[charIndex] as AnimaCharacter).CurrentKi;
+                                character.ImageUrl = Characters[charIndex].ImageUrl;
+
+                            }
+                            Characters[charIndex] = character;
+                        }
+
+                        SaveExcelCharacter(package, mention, character.Name); 
+                    }
                 }
             }
 
+            return character;
         }
 
         public T FindCurrentByMention<T>(string mention) where T : PlayableCharacter
         {
-            return Characters.OfType<T>().First(x => x.Player == mention && x.IsCurrent);
+            return Characters.OfType<T>().FirstOrDefault(x => x.Player == mention && x.IsCurrent);
         }
 
         public IEnumerable<T> FindByMention<T>(string mention) where T : PlayableCharacter
@@ -137,7 +152,12 @@ namespace BotDiscord.Services
 
         public T Find<T>(string mention, string name) where T : PlayableCharacter
         {
-            return Characters.OfType<T>().First(x => x.Player == mention && x.Name.ToLower() == name.ToLower());
+            return Characters.OfType<T>().FirstOrDefault(x => x.Player == mention && x.Name.Equals(name.Trim(), StringComparison.CurrentCultureIgnoreCase));
+        }
+
+        public List<T> GetAllActiveCharacter<T>() where T : PlayableCharacter
+        {
+            return Characters.OfType<T>().Where(x => x.IsCurrent).ToList();
         }
 
         public static void SaveExcelCharacter(ExcelPackage package, string mention, string characterName)

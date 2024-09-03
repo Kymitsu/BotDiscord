@@ -35,7 +35,7 @@ namespace BotDiscordConsole
             }
 
             
-            ConsoleColor originalColor = Console.ForegroundColor;
+            ConsoleColor originalColor = ConsoleColor.Gray;
 
             Console.ForegroundColor = LogLevelToColorMap[logLevel];
             Console.WriteLine($"[{eventId.Id,2}: {logLevel,-12}]");

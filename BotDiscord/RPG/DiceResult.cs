@@ -14,7 +14,7 @@ namespace BotDiscord.RPG
         {
             DiceResults = diceResults;
             _bonus = bonus.ToList();
-            _bonus.Remove(0);
+            _bonus.Remove(0); //removes 0 values
             SumRolls();
             BuildResultText();
         }
@@ -26,10 +26,27 @@ namespace BotDiscord.RPG
 
         private void BuildResultText()
         {
+            var temp = new StringBuilder();
             if (DiceResults.Count > 1)
-                ResultText = $"`({string.Join(" + ", DiceResults)}) + {string.Join(" + ", _bonus)} = {Total}`";
+                temp.Append($"`({string.Join(" + ", DiceResults)})");
             else
-                ResultText = $"`{string.Join(" + ", DiceResults)} + {string.Join(" + ", _bonus)} = {Total}`";
+                temp.Append($"`{string.Join(" + ", DiceResults)}");
+
+            if (DiceResults.Any() && _bonus.Any())
+                temp.Append(" + ");
+
+            temp.Append($"{string.Join(" + ", _bonus)}");
+
+            if(DiceResults.Count + _bonus.Count > 1)
+                temp.Append($" = {Total}");
+
+            temp.Append("`");
+
+            ResultText = temp.ToString();
+            //if (DiceResults.Count > 1)
+            //    ResultText = $"`({string.Join(" + ", DiceResults)}) + {string.Join(" + ", _bonus)} = {Total}`";
+            //else
+            //    ResultText = $"`{string.Join(" + ", DiceResults)} + {string.Join(" + ", _bonus)} = {Total}`";
         }
 
         public List<int> DiceResults { get; set; }

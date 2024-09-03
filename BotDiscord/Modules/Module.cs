@@ -26,14 +26,15 @@ namespace BotDiscord.Modules
             _characterService = charService;
         }
 
-        [Command("!test")]
-        public async Task TestCommand()
-        {
+        //[Command("!test")]
+        //public async Task TestCommand()
+        //{
             
-            await Context.Channel.SendMessageAsync($"{Context.User.Mention} Test command");
-        }
+        //    await Context.Channel.SendMessageAsync($"{Context.User.Mention} Test command");
+        //}
 
         [Command("!")]
+        [Alias("!r")]
         [Summary("Lancer un ou plusieurs dés. `! 2d12+5`")]
         public async Task MultipleRoll(params string[] s)
         {
@@ -103,41 +104,41 @@ namespace BotDiscord.Modules
             }
         }
 
-        [Command("!session stats")]
-        [Summary("Affiche les statistiques de jets de dés (Anima uniquement)")]
-        public async Task SessionStats()
-        {
-            await Context.Message.DeleteAsync();
-            List<AnimaCharacter> characters = _characterService.Characters.OfType<AnimaCharacter>().Where(x => x.IsCurrent).ToList();
+        //[Command("!session stats")]
+        //[Summary("Affiche les statistiques de jets de dés (Anima uniquement)")]
+        //public async Task SessionStats()
+        //{
+        //    await Context.Message.DeleteAsync();
+        //    List<AnimaCharacter> characters = _characterService.Characters.OfType<AnimaCharacter>().Where(x => x.IsCurrent).ToList();
 
-            Dictionary<string, List<DiceResult>> allStatistics = new Dictionary<string, List<DiceResult>>();
-            allStatistics = characters.SelectMany(x => x.RollStatistics)
-                .ToLookup(kvp => kvp.Key, kvp => kvp.Value)
-                .ToDictionary(group => group.Key, group => group.SelectMany(x => x).ToList());
+        //    Dictionary<RollableStat, List<DiceResult>> allStatistics = new Dictionary<RollableStat, List<DiceResult>>();
+        //    allStatistics = characters.SelectMany(x => x.RollStatistics)
+        //        .ToLookup(kvp => kvp.Key, kvp => kvp.Value)
+        //        .ToDictionary(group => group.Key, group => group.SelectMany(x => x).ToList());
 
-            int longestStat = allStatistics.Keys.Select(x => x).Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine(string.Format($"|{{0,-{longestStat}}}|{{1,-13}}|{{2,-10}}|{{3,-10}}|", "*Stat*", "*Nb rolls*", "*Moy*", "*Moy/dé*"));
-            foreach (var kvp in allStatistics)
-            {
-                string stat = kvp.Key;
-                int rolls = kvp.Value.Count;
-                int mean = kvp.Value.Sum(x => x.DiceResults.Sum()) / kvp.Value.Count;
-                int meanPerDice = kvp.Value.Sum(x => x.DiceResults.Sum()) / kvp.Value.Sum(x => x.DiceResults.Count);
-                sb.AppendLine(string.Format($"|{{0,-{longestStat}}}|{{1,13}}|{{2,10}}|{{3,10}}|", stat, rolls, mean, meanPerDice));
-            }
+        //    int longestStat = allStatistics.Keys.Select(x => x).Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
+        //    StringBuilder sb = new StringBuilder();
+        //    sb.AppendLine(string.Format($"|{{0,-{longestStat}}}|{{1,-13}}|{{2,-10}}|{{3,-10}}|", "*Stat*", "*Nb rolls*", "*Moy*", "*Moy/dé*"));
+        //    foreach (var kvp in allStatistics)
+        //    {
+        //        string stat = kvp.Key;
+        //        int rolls = kvp.Value.Count;
+        //        int mean = kvp.Value.Sum(x => x.DiceResults.Sum()) / kvp.Value.Count;
+        //        int meanPerDice = kvp.Value.Sum(x => x.DiceResults.Sum()) / kvp.Value.Sum(x => x.DiceResults.Count);
+        //        sb.AppendLine(string.Format($"|{{0,-{longestStat}}}|{{1,13}}|{{2,10}}|{{3,10}}|", stat, rolls, mean, meanPerDice));
+        //    }
 
-            await Context.Channel.SendMessageAsync($"```{sb.ToString()}```");
-            characters.ForEach(x => x.RollStatistics = new Dictionary<string, List<DiceResult>>());
-        }
+        //    await Context.Channel.SendMessageAsync($"```{sb.ToString()}```");
+        //    characters.ForEach(x => x.RollStatistics = new Dictionary<string, List<DiceResult>>());
+        //}
 
-        [Command("!r")]
-        [Summary("Lance un dé.`!r 10 3`")]
-        public async Task Roll([Summary("Taille du Dé")] int dieSize, [Summary("Bonus à ajouter")] int bonus = 0)
-        {
-            await Context.Message.DeleteAsync();
-            await Context.Channel.SendMessageAsync(Context.User.Mention + " rolled : " + DiceHelper.SimpleRoll(dieSize, bonus).ResultText);
-        }
+        //[Command("!r")]
+        //[Summary("Lance un dé.`!r 10 3`")]
+        //public async Task Roll([Summary("Taille du Dé")] int dieSize, [Summary("Bonus à ajouter")] int bonus = 0)
+        //{
+        //    await Context.Message.DeleteAsync();
+        //    await Context.Channel.SendMessageAsync(Context.User.Mention + " rolled : " + DiceHelper.SimpleRoll(dieSize, bonus).ResultText);
+        //}
 
         [Command("!me")]
         [Summary("Pour t'aider dans ton RP parce qu'un autre joueur parle trop")]

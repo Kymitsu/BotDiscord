@@ -6,8 +6,6 @@ namespace BotDiscord.RPG.Anima
 {
     public static class AnimaDiceHelper
     {
-        private static Random random = new Random();
-
         public static DiceResult AnimaRoll(bool destinFuneste, params int[] bonus)
         {
             if (destinFuneste == true)
@@ -18,7 +16,7 @@ namespace BotDiscord.RPG.Anima
 
         private static DiceResult AnimaRoll(int[] bonus, List<int> diceResults, int openRollValue)
         {
-            int temp = random.Next(1, 100 + 1);
+            int temp = DiceHelper.SimpleRoll(100);
             diceResults.Add(temp);
             if (temp >= openRollValue)
             {
@@ -34,7 +32,7 @@ namespace BotDiscord.RPG.Anima
 
         public static DiceResult BaseStatRoll(params int[] bonus)
         {
-            int result = random.Next(1, 11);
+            int result = DiceHelper.SimpleRoll(10);
             switch (result)
             {
                 case 1:
@@ -58,7 +56,7 @@ namespace BotDiscord.RPG.Anima
 
         public static int CaractRoll(int rerollVal)
         {
-            int result = random.Next(1, 11);
+            int result = DiceHelper.SimpleRoll(10);
             if (result <= rerollVal)
             {
                 return CaractRoll(rerollVal);
