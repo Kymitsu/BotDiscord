@@ -129,10 +129,10 @@ namespace BotDiscord.RPG.Anima
             }
 
             DiceResult resultDice = rollableStat.Roll(bonus, DestinFuneste);
-            AddRollStatistics(rollableStat, resultDice);
-
+            
             if (rollableStat is Roll100Stat)
             {
+                AddRollStatistics(rollableStat, resultDice);
                 string bonusSymbol = bonus > 0 ? "+" : "";
                 resultMsg = $"rolled : {resultDice.ResultText} {rollableStat.Name} {(bonus != 0 ? bonusSymbol + bonus : "")}";
 
@@ -153,6 +153,7 @@ namespace BotDiscord.RPG.Anima
             }
             else if (rollableStat is ResistanceStat)
             {
+                AddRollStatistics(rollableStat, resultDice);
                 string bonusSymbol = bonus > 0 ? "+" : "";
                 resultMsg = $"rolled : {resultDice.ResultText} {rollableStat.Name} {(bonus != 0 ? bonusSymbol + bonus : "")}";
             }

@@ -121,9 +121,9 @@ namespace BotDiscord.Modules
 
                 int longestChar = activeChar.Select(x => x.Name).Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
                 int longestStat = activeChar.SelectMany(x => x.RollStatistics.Keys).Select(x => x.Name).Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
-                int longestString = Math.Max(longestChar, longestStat);
+                int longestString = Math.Max(longestChar, longestStat)+2;
 
-                mainStatSb.AppendLine(string.Format($"|{{0,-{longestString}}}|{{1,-10}}|{{2,-10}}|{{3,-10}}|{{4,-10}}|{{5,-10}}|", "Perso", "Moyenne", "Nb lancé", "Jet ouvert", "Max", "Maladresse"));
+                mainStatSb.AppendLine(string.Format($"|{{0,-{longestString}}}|{{1,-12}}|{{2,-12}}|{{3,-12}}|{{4,-12}}|{{5,-12}}|", "Perso", "Moyenne", "Nb lancé", "Jet ouvert", "Max", "Maladresse"));
                 
 
                 foreach (AnimaCharacter character in activeChar)
@@ -138,7 +138,7 @@ namespace BotDiscord.Modules
                     int charFailRoll = 0;
 
                     detailSb.AppendLine();
-                    detailSb.AppendLine(string.Format($"|{{0,-{longestString}}}|{{1,-10}}|{{2,-10}}|{{3,-10}}|{{4,-10}}|{{5,-10}}|", charName, "Moyenne", "Nb lancé", "Jet ouvert", "Max", "Maladresse"));
+                    detailSb.AppendLine(string.Format($"|{{0,-{longestString}}}|{{1,-12}}|{{2,-12}}|{{3,-12}}|{{4,-12}}|{{5,-12}}|", charName, "Moyenne", "Nb lancé", "Jet ouvert", "Max", "Maladresse"));
                     foreach (var kvp in character.RollStatistics)
                     {
                         string stat = kvp.Key.Name;
@@ -153,7 +153,7 @@ namespace BotDiscord.Modules
                         int statFailRoll = kvp.Value.Count(x => x.DiceResults.Last() <= AnimaDiceHelper.CheckFailValue(character.IsLucky, character.IsUnlucky, kvp.Key.Value));
                         charFailRoll += statFailRoll;
 
-                        detailSb.AppendLine(string.Format($"|{{0,-{longestString}}}|{{1,10}}|{{2,10}}|{{3,10}}|{{4,10}}|{{5,10}}|", 
+                        detailSb.AppendLine(string.Format($"|{{0,-{longestString}}}|{{1,12}}|{{2,12}}|{{3,12}}|{{4,12}}|{{5,12}}|", 
                             stat,
                             statMean,
                             statNbDice,
@@ -163,7 +163,7 @@ namespace BotDiscord.Modules
 
                     }
 
-                    mainStatSb.AppendLine(string.Format($"|{{0,-{longestString}}}|{{1,10}}|{{2,10}}|{{3,10}}|{{4,10}}|{{5,10}}|",
+                    mainStatSb.AppendLine(string.Format($"|{{0,-{longestString}}}|{{1,12}}|{{2,12}}|{{3,12}}|{{4,12}}|{{5,12}}|",
                         charName,
                         mean,
                         nbDice,
