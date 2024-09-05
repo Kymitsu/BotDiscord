@@ -288,6 +288,8 @@ namespace BotDiscord.Modules
             {
                 AnimaCharacter character = _characterService.FindCurrentByMention<AnimaCharacter>(Context.User.Mention);
 
+                int previousHp = character.CurrentHp;
+
                 if(value.Contains('+') || value.Contains("-"))
                     character.CurrentHp += Convert.ToInt32(value);
                 else
@@ -295,6 +297,10 @@ namespace BotDiscord.Modules
 
                 await RespondAsync($"{Context.User.Mention} {character.Name} Hp : {character.CurrentHp}/{character.Hp}", ephemeral: true);
 
+                if((previousHp - character.CurrentHp)> previousHp / 2)
+                {
+                    await FollowupAsync("**Vous avez subit un coup critique!!**", ephemeral: true);
+                }
             }
 
             [CharacterLoadedPermission]
@@ -309,6 +315,21 @@ namespace BotDiscord.Modules
                     character.CurrentFatigue = Convert.ToInt32(value);
 
                 await RespondAsync($"{Context.User.Mention} {character.Name} Fatigue : {character.CurrentFatigue}/{character.Fatigue}", ephemeral: true);
+
+                if(character.CurrentFatigue <= 4)
+                {
+                    int malus = character.CurrentFatigue switch
+                    {
+                        4 => -10,
+                        3 => -20,
+                        2 => -40,
+                        1 => -80,
+                        0 => -120,
+                        _ => -120
+                    };
+
+                    await FollowupAsync($"**Fatique basse** => Malus à toutes les actions : {malus}", ephemeral:true);
+                }
             }
 
             [CharacterLoadedPermission]
@@ -323,6 +344,11 @@ namespace BotDiscord.Modules
                     character.CurrentZeon = Convert.ToInt32(value);
 
                 await RespondAsync($"{Context.User.Mention} {character.Name} Zéon : {character.CurrentZeon}/{character.ZeonPoints}", ephemeral: true);
+
+                if(character.CurrentZeon <=50)
+                    await FollowupAsync("**Niveau de Zéon bas** => Vous perdez 2 points de Fatigue et -10 à toutes les actions!", ephemeral:true);
+                else if (character.CurrentZeon <=0)
+                    await FollowupAsync("**Niveau de Zéon très bas!** => Vous perdez la moitié de vos points de Fatigue et -30 à toutes les actions!", ephemeral:true);
             }
 
             [CharacterLoadedPermission]
@@ -351,6 +377,11 @@ namespace BotDiscord.Modules
                     character.CurrentKi = Convert.ToInt32(value);
 
                 await RespondAsync($"{Context.User.Mention} {character.Name} Ki : {character.CurrentKi}/{character.TotalKiPoints}", ephemeral: true);
+
+                if (character.CurrentKi <= 10)
+                    await FollowupAsync("**Ki faible** => Perte de 1 point de Fatigue toutes les 5 minutes.");
+                else if(character.CurrentKi <= 0)
+                    await FollowupAsync("**Ki très faible!** => Perte de 1 point de Fatigue toutes les 5 rounds.");
             }
         }
     }
