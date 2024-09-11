@@ -21,14 +21,6 @@ namespace BotDiscord.Modules
         {
             _characterService = characterService;
         }
-
-        [RequireOwner]
-        [SlashCommand("test-respond", "This is a test slash command")]
-        public async Task TestRespond()
-        {
-
-            await RespondAsync("ayo!!");
-        }
         
         [SlashCommand("r", "Lancer un ou plusieurs dés.")]
         public async Task Roll([Summary(description:"exemple: 2d12+3")] string expr)
@@ -58,7 +50,6 @@ namespace BotDiscord.Modules
             }
             var test = new DiceResult(result, bonus);
 
-            //string msg = $"{Context.User.Mention} ({expr}) : {string.Join(" + ", result)}{(bonusIndex != -1 ? $" + {bonus}": "")} = {result.Sum() + bonus}";
             string msg = $"{Context.User.Mention} ({expr}) : {test.ResultText}";
 
             await DeleteOriginalResponseAsync();
@@ -95,9 +86,14 @@ namespace BotDiscord.Modules
             {
                 if (_sessionStart != DateTime.MinValue)
                 {
+                    List<AnimaCharacter> activeChar = _characterService.GetAllActiveCharacter<AnimaCharacter>();
+                    string statMessage = BuildStatMessage(activeChar);
+
+                    await RespondAsync(statMessage);
+
                     DateTime end = DateTime.Now;
                     TimeSpan ellapsedTime = end - _sessionStart;
-                    await RespondAsync($">>> **Fin de séance**{Environment.NewLine}Durée de la séance: {ellapsedTime.Hours}h{ellapsedTime.Minutes}");
+                    await FollowupAsync($">>> **Fin de séance**{Environment.NewLine}Durée de la séance: {ellapsedTime.Hours}h{ellapsedTime.Minutes}");
                     _sessionStart = DateTime.MinValue;
 
                     _characterService.SaveLoadedCharacters();
@@ -116,17 +112,24 @@ namespace BotDiscord.Modules
                 await DeferAsync();
 
                 List<AnimaCharacter> activeChar = _characterService.GetAllActiveCharacter<AnimaCharacter>();
+                string statMessage = BuildStatMessage(activeChar);
+
+                await ModifyOriginalResponseAsync(x => x.Content = $"```xl{Environment.NewLine}{statMessage}```");
+            }
+
+            private string BuildStatMessage(List<AnimaCharacter> animaCharacters)
+            {
                 StringBuilder mainStatSb = new StringBuilder();
                 StringBuilder detailSb = new StringBuilder();
 
-                int longestChar = activeChar.Select(x => x.Name).Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
-                int longestStat = activeChar.SelectMany(x => x.RollStatistics.Keys).Select(x => x.Name).Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
-                int longestString = Math.Max(longestChar, longestStat)+2;
+                int longestChar = animaCharacters.Select(x => x.Name).Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
+                int longestStat = animaCharacters.SelectMany(x => x.RollStatistics.Keys).Select(x => x.Name).Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
+                int longestString = Math.Max(longestChar, longestStat) + 2;
 
                 mainStatSb.AppendLine(string.Format($"|{{0,-{longestString}}}|{{1,-12}}|{{2,-12}}|{{3,-12}}|{{4,-12}}|{{5,-12}}|", "Perso", "Moyenne", "Nb lancé", "Jet ouvert", "Max", "Maladresse"));
-                
 
-                foreach (AnimaCharacter character in activeChar)
+
+                foreach (AnimaCharacter character in animaCharacters)
                 {
                     string charName = character.Name;
 
@@ -144,7 +147,7 @@ namespace BotDiscord.Modules
                         string stat = kvp.Key.Name;
 
                         var allStatDice = kvp.Value.SelectMany(x => x.DiceResults).ToList();
-                        double statMean = Math.Round(allStatDice.Sum()/(double)allStatDice.Count, 1);
+                        double statMean = Math.Round(allStatDice.Sum() / (double)allStatDice.Count, 1);
                         int statNbDice = allStatDice.Count;
                         int statOpenRoll = kvp.Value.Count(x => x.DiceResults.Count > 1);
                         charOpenRoll += statOpenRoll;
@@ -153,7 +156,7 @@ namespace BotDiscord.Modules
                         int statFailRoll = kvp.Value.Count(x => x.DiceResults.Last() <= AnimaDiceHelper.CheckFailValue(character.IsLucky, character.IsUnlucky, kvp.Key.Value));
                         charFailRoll += statFailRoll;
 
-                        detailSb.AppendLine(string.Format($"|{{0,-{longestString}}}|{{1,12}}|{{2,12}}|{{3,12}}|{{4,12}}|{{5,12}}|", 
+                        detailSb.AppendLine(string.Format($"|{{0,-{longestString}}}|{{1,12}}|{{2,12}}|{{3,12}}|{{4,12}}|{{5,12}}|",
                             stat,
                             statMean,
                             statNbDice,
@@ -173,7 +176,7 @@ namespace BotDiscord.Modules
 
                 }
 
-                await ModifyOriginalResponseAsync(x => x.Content = $"```xl{Environment.NewLine}{mainStatSb}{detailSb}```");
+                return $"{mainStatSb}{detailSb}";
             }
         }
     }
