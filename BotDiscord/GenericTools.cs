@@ -24,6 +24,4 @@ namespace BotDiscord
 
         
     }
-
-
 }

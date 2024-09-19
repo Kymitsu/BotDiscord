@@ -21,6 +21,12 @@ namespace BotDiscord.Modules
         {
             _characterService = characterService;
         }
+
+        [SlashCommand("test-command", "This is a test command")]
+        public async Task Test()
+        {
+            await RespondAsync($"```ansi{Environment.NewLine}{DiscordFormater.CodeBlockColor("This is a test", DiscordFormats.Bold | DiscordFormats.TextCyan)}```");
+        }
         
         [SlashCommand("r", "Lancer un ou plusieurs dés.")]
         public async Task Roll([Summary(description:"exemple: 2d12+3")] string expr)
@@ -60,6 +66,7 @@ namespace BotDiscord.Modules
         public class SessionSlashModule : InteractionModuleBase<SocketInteractionContext>
         {
             private readonly CharacterService _characterService;
+            private static BlockMessage _statMessage;
 
             public SessionSlashModule(CharacterService characterService)
             {
@@ -87,9 +94,12 @@ namespace BotDiscord.Modules
                 if (_sessionStart != DateTime.MinValue)
                 {
                     List<AnimaCharacter> activeChar = _characterService.GetAllActiveCharacter<AnimaCharacter>();
-                    string statMessage = BuildStatMessage(activeChar);
+                    BuildStatMessage(activeChar);
+                    var builder = new ComponentBuilder()
+                        .WithButton("-", "pagedmessage-minus")
+                        .WithButton("+", "pagedmessage-plus");
 
-                    await RespondAsync(statMessage);
+                    await RespondAsync(_statMessage.GetCurrentPage(), components: builder.Build());
 
                     DateTime end = DateTime.Now;
                     TimeSpan ellapsedTime = end - _sessionStart;
@@ -112,21 +122,55 @@ namespace BotDiscord.Modules
                 await DeferAsync();
 
                 List<AnimaCharacter> activeChar = _characterService.GetAllActiveCharacter<AnimaCharacter>();
-                string statMessage = BuildStatMessage(activeChar);
+                BuildStatMessage(activeChar);
+                var builder = new ComponentBuilder()
+                        .WithButton("◀", "pagedmessage-minus")
+                        .WithButton("▶", "pagedmessage-plus");
 
-                await ModifyOriginalResponseAsync(x => x.Content = $"```xl{Environment.NewLine}{statMessage}```");
+                await ModifyOriginalResponseAsync(x => 
+                { 
+                    x.Content = _statMessage.GetCurrentPage();
+                    x.Components = builder.Build();
+                });
             }
 
-            private string BuildStatMessage(List<AnimaCharacter> animaCharacters)
+            [ComponentInteraction("pagedmessage-*", true)]
+            public async Task StatMessageButton(string action)
+            {
+                await DeferAsync();
+                string temp;
+                if (action == "plus")
+                    temp = _statMessage.GetNextPage();
+                else
+                    temp = _statMessage.GetPreviousPage();
+
+                var builder = new ComponentBuilder()
+                        .WithButton("◀", "pagedmessage-minus")
+                        .WithButton("▶", "pagedmessage-plus");
+
+                await ModifyOriginalResponseAsync(x => 
+                {
+                    x.Content = temp;
+                    x.Components = builder.Build();
+                });
+            }
+
+
+
+            private void BuildStatMessage(List<AnimaCharacter> animaCharacters)
             {
                 StringBuilder mainStatSb = new StringBuilder();
-                StringBuilder detailSb = new StringBuilder();
+                List<StringBuilder> detailStats = new();
+                
 
                 int longestChar = animaCharacters.Select(x => x.Name).Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
                 int longestStat = animaCharacters.SelectMany(x => x.RollStatistics.Keys).Select(x => x.Name).Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
                 int longestString = Math.Max(longestChar, longestStat) + 2;
+                const int defPad = 12;
 
-                mainStatSb.AppendLine(string.Format($"|{{0,-{longestString}}}|{{1,-12}}|{{2,-12}}|{{3,-12}}|{{4,-12}}|{{5,-12}}|", "Perso", "Moyenne", "Nb lancé", "Jet ouvert", "Max", "Maladresse"));
+                mainStatSb.AppendLine(DiscordFormater.CodeBlockColor(
+                    string.Format($"|{{0,-{longestString}}}|{{1,-12}}|{{2,-12}}|{{3,-12}}|{{4,-12}}|{{5,-12}}|", "Perso", "Moyenne", "Nb lancé", "Jet ouvert", "Max", "Maladresse"),
+                    DiscordFormats.Bold | DiscordFormats.Underline));
 
 
                 foreach (AnimaCharacter character in animaCharacters)
@@ -140,8 +184,11 @@ namespace BotDiscord.Modules
                     int charMaxRoll = 0;
                     int charFailRoll = 0;
 
-                    detailSb.AppendLine();
-                    detailSb.AppendLine(string.Format($"|{{0,-{longestString}}}|{{1,-12}}|{{2,-12}}|{{3,-12}}|{{4,-12}}|{{5,-12}}|", charName, "Moyenne", "Nb lancé", "Jet ouvert", "Max", "Maladresse"));
+                    StringBuilder detailSb = new StringBuilder();
+                    detailSb.AppendLine(DiscordFormater.CodeBlockColor(
+                        string.Format($"|{{0,-{longestString}}}|{{1,-12}}|{{2,-12}}|{{3,-12}}|{{4,-12}}|{{5,-12}}|", charName, "Moyenne", "Nb lancé", "Jet ouvert", "Max", "Maladresse"),
+                        DiscordFormats.Bold | DiscordFormats.Underline));
+                    
                     foreach (var kvp in character.RollStatistics)
                     {
                         string stat = kvp.Key.Name;
@@ -156,27 +203,34 @@ namespace BotDiscord.Modules
                         int statFailRoll = kvp.Value.Count(x => x.DiceResults.Last() <= AnimaDiceHelper.CheckFailValue(character.IsLucky, character.IsUnlucky, kvp.Key.Value));
                         charFailRoll += statFailRoll;
 
-                        detailSb.AppendLine(string.Format($"|{{0,-{longestString}}}|{{1,12}}|{{2,12}}|{{3,12}}|{{4,12}}|{{5,12}}|",
-                            stat,
-                            statMean,
-                            statNbDice,
-                            statOpenRoll,
-                            statMaxRoll,
-                            statFailRoll));
 
+                        detailSb.AppendLine(string.Format("|{0}|{1}|{2}|{3}|{4}|{5}|",
+                            DiscordFormater.CodeBlockColor(string.Format($"{{0,-{longestString}}}", stat), DiscordFormats.Bold),
+                            DiscordFormater.CodeBlockColor($"{statMean,defPad}", DiscordFormats.TextBlue),
+                            DiscordFormater.CodeBlockColor($"{statNbDice,defPad}", DiscordFormats.TextBlue),
+                            DiscordFormater.CodeBlockColor($"{statOpenRoll,defPad}", DiscordFormats.TextBlue),
+                            DiscordFormater.CodeBlockColor($"{statMaxRoll,defPad}", DiscordFormats.TextBlue),
+                            DiscordFormater.CodeBlockColor($"{statFailRoll,defPad}", DiscordFormats.TextBlue)));
                     }
+                    detailStats.Add(detailSb);
 
-                    mainStatSb.AppendLine(string.Format($"|{{0,-{longestString}}}|{{1,12}}|{{2,12}}|{{3,12}}|{{4,12}}|{{5,12}}|",
-                        charName,
-                        mean,
-                        nbDice,
-                        charOpenRoll,
-                        charMaxRoll,
-                        charFailRoll));
+                    mainStatSb.AppendLine(string.Format("|{0}|{1}|{2}|{3}|{4}|{5}|",
+                            DiscordFormater.CodeBlockColor(string.Format($"{{0,-{longestString}}}", charName), DiscordFormats.Bold),
+                            DiscordFormater.CodeBlockColor($"{mean,defPad}", DiscordFormats.TextBlue),
+                            DiscordFormater.CodeBlockColor($"{nbDice,defPad}", DiscordFormats.TextBlue),
+                            DiscordFormater.CodeBlockColor($"{charOpenRoll,defPad}", DiscordFormats.TextBlue),
+                            DiscordFormater.CodeBlockColor($"{charMaxRoll,defPad}", DiscordFormats.TextBlue),
+                            DiscordFormater.CodeBlockColor($"{charFailRoll,defPad}", DiscordFormats.TextBlue)));
 
                 }
+                _statMessage = new BlockMessage();
+                _statMessage.AddPage($"```ansi{Environment.NewLine}{mainStatSb}```");
+                foreach (var sb in detailStats)
+                {
+                    _statMessage.AddPage($"```ansi{Environment.NewLine}{sb}```");
+                }
 
-                return $"{mainStatSb}{detailSb}";
+                //return $"```ansi{Environment.NewLine}{mainStatSb}{detailSb}```";
             }
         }
     }
